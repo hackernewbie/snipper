@@ -60,30 +60,38 @@ namespace Snipper
             {
                 case "BlueGradient":
                     BackgroundBorder.Background = new LinearGradientBrush(
-                        System.Windows.Media.Color.FromRgb(25, 118, 210),
-                        System.Windows.Media.Color.FromRgb(66, 165, 245),
-                        new System.Windows.Point(0, 0),
-                        new System.Windows.Point(1, 1));
+                        System.Windows.Media.Color.FromRgb(227, 242, 253), // light blue
+                        System.Windows.Media.Color.FromRgb(100, 181, 246), // mid blue
+                        new System.Windows.Point(0.5, 0), // top center
+                        new System.Windows.Point(0.5, 1)); // bottom center
                     break;
                 case "PurpleGradient":
                     BackgroundBorder.Background = new LinearGradientBrush(
-                        System.Windows.Media.Color.FromRgb(123, 31, 162),
-                        System.Windows.Media.Color.FromRgb(186, 104, 200),
-                        new System.Windows.Point(0, 0),
-                        new System.Windows.Point(1, 1));
+                        System.Windows.Media.Color.FromRgb(243, 229, 245), // soft lavender
+                        System.Windows.Media.Color.FromRgb(149, 117, 205), // soft purple
+                        new System.Windows.Point(0.5, 0),
+                        new System.Windows.Point(0.5, 1));
                     break;
                 case "OrangeGradient":
                     BackgroundBorder.Background = new LinearGradientBrush(
-                        System.Windows.Media.Color.FromRgb(245, 124, 0),
-                        System.Windows.Media.Color.FromRgb(255, 183, 77),
-                        new System.Windows.Point(0, 0),
-                        new System.Windows.Point(1, 1));
+                        System.Windows.Media.Color.FromRgb(255, 244, 229), // warm peach base
+                        System.Windows.Media.Color.FromRgb(255, 183, 77),  // soft amber
+                        new System.Windows.Point(0.5, 0),
+                        new System.Windows.Point(0.5, 1));
                     break;
-                case "White":
-                    BackgroundBorder.Background = new SolidColorBrush(Colors.White);
+                case "GrayGradient":
+                    BackgroundBorder.Background = new LinearGradientBrush(
+                        System.Windows.Media.Color.FromRgb(245, 245, 245), // light gray
+                        System.Windows.Media.Color.FromRgb(224, 224, 224), // slightly darker gray
+                        new System.Windows.Point(0.5, 0),
+                        new System.Windows.Point(0.5, 1));
                     break;
-                case "Black":
-                    BackgroundBorder.Background = new SolidColorBrush(Colors.Black);
+                case "BlackGradient":
+                    BackgroundBorder.Background = new LinearGradientBrush(
+                        System.Windows.Media.Color.FromRgb(48, 48, 48),   // dark gray
+                        System.Windows.Media.Color.FromRgb(18, 18, 18),   // near black
+                        new System.Windows.Point(0.5, 0),
+                        new System.Windows.Point(0.5, 1));
                     break;
                 case "Transparent":
                     BackgroundBorder.Background = new SolidColorBrush(Colors.Transparent);
@@ -113,9 +121,20 @@ namespace Snipper
                 
                 //MessageBox.Show("Screenshot copied to clipboard!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
+            else
+            {
+                string originalTitle = this.Title;
+                string newMessage = "Nothing to copy!\n Please take a screenshot first!";
+                this.Title = newMessage;
+
+                PlaceholderText.Text = newMessage;
+
+                await Task.Delay(3000);
+                this.Title = originalTitle;
+            }
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             if (_currentScreenshot != null)
             {
@@ -123,7 +142,7 @@ namespace Snipper
                 {
                     Filter = "PNG files (*.png)|*.png|JPEG files (*.jpg)|*.jpg",
                     DefaultExt = "png",
-                    FileName = $"Screenshot_{DateTime.Now:yyyyMMdd_HHmmss}"
+                    FileName = $"Snipper_Screenshot_{DateTime.Now:yyyyMMdd_HHmmss}"
                 };
 
                 if (saveDialog.ShowDialog() == true)
@@ -150,6 +169,22 @@ namespace Snipper
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
+            else
+            {
+                string originalTitle = this.Title;
+                string newMessage = "Nothing to save!\n Please take a screenshot first!";
+                this.Title = newMessage;
+
+                PlaceholderText.Text = newMessage;
+
+                await Task.Delay(3000);
+                this.Title = originalTitle;
+            }
+        }
+
+        private void radius_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }

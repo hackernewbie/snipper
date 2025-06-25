@@ -75,6 +75,9 @@ namespace Snipper
             SelectionRect.Height = 0;
 
             OverlayCanvas.CaptureMouse();
+
+            // Show coordinate display when starting selection
+            CoordinateText.Visibility = Visibility.Visible;
         }
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
@@ -88,10 +91,12 @@ namespace Snipper
                 double height = Math.Abs(_endPoint.Y - _startPoint.Y);
 
                 // Update selection rectangle
-                Canvas.SetLeft(SelectionRect, left);
+                Canvas.SetLeft(SelectionRect, left);    
                 Canvas.SetTop(SelectionRect, top);
                 SelectionRect.Width = width;
                 SelectionRect.Height = height;
+
+                UpdateCoordinateDisplay(_endPoint);
 
                 // Create the 4-part overlay with cutout
                 if (width > 1 && height > 1)
@@ -100,7 +105,27 @@ namespace Snipper
                 }
             }
         }
+        private void UpdateCoordinateDisplay(System.Windows.Point mousePos)
+        {
+            CoordinateText.Text = $"X: {(int)mousePos.X}, Y: {(int)mousePos.Y}";
 
+            // Positioning the text near the cursor (offset to avoid blocking view)
+            double textLeft = mousePos.X + 15;
+            double textTop = mousePos.Y - 25;
+
+            // Keeping text within canvas bounds
+            if (textLeft + 100 > OverlayCanvas.ActualWidth) // Approximate text width
+                textLeft = mousePos.X - 100 - 15;
+
+            if (textTop < 0)
+                textTop = mousePos.Y + 15;
+
+            Canvas.SetLeft(CoordinateText, textLeft);
+            Canvas.SetTop(CoordinateText, textTop);
+
+            // Show during selection
+            CoordinateText.Visibility = Visibility.Visible;
+        }
         private void CreateFourPartOverlay(double selectionLeft, double selectionTop, double selectionWidth, double selectionHeight)
         {
             // Remove existing overlays
@@ -174,6 +199,8 @@ namespace Snipper
 
                 this.Close();
             }
+            // Hide coordinate display when selection is complete
+            CoordinateText.Visibility = Visibility.Collapsed;
         }
 
         private BitmapSource CaptureScreen(int x, int y, int width, int height)

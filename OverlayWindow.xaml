@@ -17,9 +17,19 @@
 
         <!-- Selection rectangle -->
         <Rectangle Name="SelectionRect"
-                   Stroke="PaleGreen"
+                   Stroke="FloralWhite"
                    StrokeThickness="1"
                    Fill="Transparent"
                    Visibility="Collapsed"/>
+
+        <!-- X,Y - Coordinates display -->
+        <TextBlock x:Name="CoordinateText" 
+               Text="X: 0, Y: 0"
+               Background="Black"
+               Foreground="White"
+               Padding="4,2"
+               FontSize="12"
+               FontFamily="Consolas"
+               Visibility="Collapsed"/>
     </Canvas>
 </Window>
