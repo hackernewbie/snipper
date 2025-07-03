@@ -12,7 +12,6 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using System.Threading.Tasks;
 
-
 namespace Snipper
 {
     public partial class MainWindow : Window
@@ -81,15 +80,15 @@ namespace Snipper
                     break;
                 case "GrayGradient":
                     BackgroundBorder.Background = new LinearGradientBrush(
-                        System.Windows.Media.Color.FromRgb(245, 245, 245), // light gray
-                        System.Windows.Media.Color.FromRgb(224, 224, 224), // slightly darker gray
+                        System.Windows.Media.Color.FromRgb(230, 230, 230), // light gray
+                        System.Windows.Media.Color.FromRgb(74,74,74), // slightly darker gray
                         new System.Windows.Point(0.5, 0),
                         new System.Windows.Point(0.5, 1));
                     break;
                 case "BlackGradient":
                     BackgroundBorder.Background = new LinearGradientBrush(
-                        System.Windows.Media.Color.FromRgb(48, 48, 48),   // dark gray
-                        System.Windows.Media.Color.FromRgb(18, 18, 18),   // near black
+                        System.Windows.Media.Color.FromRgb(230, 230, 230),   // dark gray
+                        System.Windows.Media.Color.FromRgb(13, 13, 13),   // near black
                         new System.Windows.Point(0.5, 0),
                         new System.Windows.Point(0.5, 1));
                     break;
@@ -185,6 +184,28 @@ namespace Snipper
         private void radius_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PaddingSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (ScreenshotImage != null)
+            {
+                double padding = PaddingSlider.Value;
+                ScreenshotImage.Margin = new Thickness(padding);
+            }
+        }
+        private void InsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (BackgroundBorder != null)
+            {
+                double inset = InsetSlider.Value;
+                ScreenshotContainer.Margin = new Thickness(inset);
+            }
         }
     }
 }
