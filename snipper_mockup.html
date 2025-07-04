@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshot Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar {
+            width: 220px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .background-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .background-option {
+            width: 100%;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .background-option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .background-option.active {
+            border-color: #2d3436;
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(45, 52, 54, 0.2);
+        }
+
+        .background-option::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .background-option.active::after {
+            opacity: 1;
+        }
+
+        .bg-blue { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+        .bg-purple { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
+        .bg-orange { background: linear-gradient(135deg, #fdcb6e, #e17055); }
+        .bg-gray { background: linear-gradient(135deg, #636e72, #2d3436); }
+        .bg-black { background: linear-gradient(135deg, #2d3436, #000000); }
+        .bg-green { background: linear-gradient(135deg, #00b894, #00a085); }
+        .bg-pink { background: linear-gradient(135deg, #fd79a8, #e84393); }
+        .bg-cyan { background: linear-gradient(135deg, #00cec9, #00b894); }
+        .bg-yellow { background: linear-gradient(135deg, #fdcb6e, #f39c12); }
+        .bg-red { background: linear-gradient(135deg, #ff7675, #d63031); }
+        .bg-indigo { background: linear-gradient(135deg, #6c5ce7, #5f27cd); }
+        .bg-teal { background: linear-gradient(135deg, #00b894, #00a085); }
+        .bg-sunset { background: linear-gradient(135deg, #ff7675, #fdcb6e); }
+        .bg-ocean { background: linear-gradient(135deg, #0984e3, #00b894); }
+        .bg-forest { background: linear-gradient(135deg, #00b894, #00a085); }
+        .bg-lavender { background: linear-gradient(135deg, #a29bfe, #fd79a8); }
+        .bg-midnight { background: linear-gradient(135deg, #2d3436, #636e72); }
+        .bg-aurora { background: linear-gradient(135deg, #a29bfe, #00cec9); }
+        .bg-fire { background: linear-gradient(135deg, #e17055, #d63031); }
+        .bg-transparent { 
+            background: repeating-conic-gradient(#f8f9fa 0% 25%, transparent 0% 50%) 50% / 12px 12px;
+            color: #2d3436;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #2d3436;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .slider-container {
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider-value {
+            font-size: 11px;
+            color: #636e72;
+            text-align: right;
+        }
+
+        .dropdown {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            font-size: 13px;
+            color: #2d3436;
+        }
+
+        .preview-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px;
+        }
+
+        .preview-content {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .preview-text {
+            font-size: 18px;
+            color: #636e72;
+            margin-bottom: 20px;
+        }
+
+        .preview-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .floating-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .scrollbar-custom {
+            scrollbar-width: thin;
+            scrollbar-color: #74b9ff #f1f3f4;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: #f1f3f4;
+            border-radius: 3px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: #74b9ff;
+            border-radius: 3px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            background: white;
+        }
+
+        .checkbox.checked {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            border-color: #00b894;
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .window-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .window-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-close { background: #ff6b6b; }
+        .btn-minimize { background: #feca57; }
+        .btn-maximize { background: #48ca8b; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="window-controls">
+            <button class="window-btn btn-close"></button>
+            <button class="window-btn btn-minimize"></button>
+            <button class="window-btn btn-maximize"></button>
+        </div>
+        
+        <div class="sidebar scrollbar-custom">
+            <div class="sidebar-section animate-fade-in">
+                <h3 class="section-title">Backgrounds</h3>
+                <div class="background-grid">
+                    <div class="background-option bg-blue active" data-bg="blue" title="Blue Ocean"></div>
+                    <div class="background-option bg-purple" data-bg="purple" title="Purple Dream"></div>
+                    <div class="background-option bg-orange" data-bg="orange" title="Orange Sunset"></div>
+                    <div class="background-option bg-gray" data-bg="gray" title="Gray Steel"></div>
+                    <div class="background-option bg-black" data-bg="black" title="Black Night"></div>
+                    <div class="background-option bg-green" data-bg="green" title="Green Forest"></div>
+                    <div class="background-option bg-pink" data-bg="pink" title="Pink Bloom"></div>
+                    <div class="background-option bg-cyan" data-bg="cyan" title="Cyan Wave"></div>
+                    <div class="background-option bg-yellow" data-bg="yellow" title="Golden Hour"></div>
+                    <div class="background-option bg-red" data-bg="red" title="Red Fire"></div>
+                    <div class="background-option bg-indigo" data-bg="indigo" title="Indigo Night"></div>
+                    <div class="background-option bg-teal" data-bg="teal" title="Teal Breeze"></div>
+                    <div class="background-option bg-sunset" data-bg="sunset" title="Sunset Glow"></div>
+                    <div class="background-option bg-ocean" data-bg="ocean" title="Ocean Deep"></div>
+                    <div class="background-option bg-forest" data-bg="forest" title="Forest Green"></div>
+                    <div class="background-option bg-lavender" data-bg="lavender" title="Lavender Fields"></div>
+                    <div class="background-option bg-midnight" data-bg="midnight" title="Midnight Sky"></div>
+                    <div class="background-option bg-aurora" data-bg="aurora" title="Aurora Borealis"></div>
+                    <div class="background-option bg-fire" data-bg="fire" title="Fire Ember"></div>
+                    <div class="background-option bg-transparent" data-bg="transparent" title="Transparent"></div>
+                </div>
+            </div>
+
+            <div class="sidebar-section animate-fade-in">
+                <h3 class="section-title">Padding</h3>
+                <div class="checkbox-group">
+                    <div class="checkbox checked" data-setting="padding-top"></div>
+                    <span class="control-label">Top</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" class="slider" min="0" max="100" value="15">
+                    <div class="slider-value">15px</div>
+                </div>
+
+                <div class="checkbox-group">
+                    <div class="checkbox" data-setting="padding-right"></div>
+                    <span class="control-label">Right</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" class="slider" min="0" max="100" value="15">
+                    <div class="slider-value">15px</div>
+                </div>
+            </div>
+
+            <div class="sidebar-section animate-fade-in">
+                <h3 class="section-title">Shadow</h3>
+                <div class="checkbox-group">
+                    <div class="checkbox" data-setting="depth"></div>
+                    <span class="control-label">Enable</span>
+                </div>
+                <div class="control-group">
+                    <span class="control-label">Blur</span>
+                    <div class="slider-container">
+                        <input type="range" class="slider" min="0" max="50" value="5">
+                        <div class="slider-value">5px</div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <span class="control-label">Opacity</span>
+                    <div class="slider-container">
+                        <input type="range" class="slider" min="0" max="100" value="30">
+                        <div class="slider-value">30%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section animate-fade-in">
+                <h3 class="section-title">Quick Settings</h3>
+                <select class="dropdown">
+                    <option value="20">Padding: 20px</option>
+                    <option value="40">Padding: 40px</option>
+                    <option value="60">Padding: 60px</option>
+                    <option value="80">Padding: 80px</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-actions">
+                    <button class="btn btn-primary">
+                        <span>📸</span>
+                        New Screenshot
+                    </button>
+                    <button class="btn btn-secondary">
+                        <span>📋</span>
+                        Copy Screenshot
+                    </button>
+                    <button class="btn btn-accent">
+                        <span>💾</span>
+                        Save Screenshot
+                    </button>
+                </div>
+                <div class="floating-controls">
+                    <button class="control-btn">⚙️</button>
+                    <button class="control-btn">❓</button>
+                </div>
+            </div>
+
+            <div class="preview-area">
+                <div class="preview-content">
+                    <div class="preview-icon">🖼️</div>
+                    <div class="preview-text">Your screenshot will appear here</div>
+                    <p style="font-size: 14px; color: #636e72; opacity: 0.7;">
+                        Click "New Screenshot" to capture your screen with the selected styling options.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Background selection
+            const backgroundOptions = document.querySelectorAll('.background-option');
+            const mainContent = document.querySelector('.main-content');
+            
+            backgroundOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    backgroundOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const bg = this.dataset.bg;
+                    const gradients = {
+                        blue: 'linear-gradient(135deg, #74b9ff, #0984e3)',
+                        purple: 'linear-gradient(135deg, #a29bfe, #6c5ce7)',
+                        orange: 'linear-gradient(135deg, #fdcb6e, #e17055)',
+                        gray: 'linear-gradient(135deg, #636e72, #2d3436)',
+                        black: 'linear-gradient(135deg, #2d3436, #000000)',
+                        green: 'linear-gradient(135deg, #00b894, #00a085)',
+                        pink: 'linear-gradient(135deg, #fd79a8, #e84393)',
+                        cyan: 'linear-gradient(135deg, #00cec9, #00b894)',
+                        yellow: 'linear-gradient(135deg, #fdcb6e, #f39c12)',
+                        red: 'linear-gradient(135deg, #ff7675, #d63031)',
+                        indigo: 'linear-gradient(135deg, #6c5ce7, #5f27cd)',
+                        teal: 'linear-gradient(135deg, #00b894, #00a085)',
+                        sunset: 'linear-gradient(135deg, #ff7675, #fdcb6e)',
+                        ocean: 'linear-gradient(135deg, #0984e3, #00b894)',
+                        forest: 'linear-gradient(135deg, #00b894, #00a085)',
+                        lavender: 'linear-gradient(135deg, #a29bfe, #fd79a8)',
+                        midnight: 'linear-gradient(135deg, #2d3436, #636e72)',
+                        aurora: 'linear-gradient(135deg, #a29bfe, #00cec9)',
+                        fire: 'linear-gradient(135deg, #e17055, #d63031)',
+                        transparent: 'repeating-conic-gradient(#f8f9fa 0% 25%, transparent 0% 50%) 50% / 20px 20px'
+                    };
+                    
+                    mainContent.style.background = gradients[bg];
+                });
+            });
+
+            // Checkbox functionality
+            const checkboxes = document.querySelectorAll('.checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('click', function() {
+                    this.classList.toggle('checked');
+                });
+            });
+
+            // Slider value updates
+            const sliders = document.querySelectorAll('.slider');
+            sliders.forEach(slider => {
+                const valueDisplay = slider.parentElement.querySelector('.slider-value');
+                
+                slider.addEventListener('input', function() {
+                    const value = this.value;
+                    const unit = valueDisplay.textContent.includes('%') ? '%' : 'px';
+                    valueDisplay.textContent = value + unit;
+                });
+            });
+
+            // Button hover effects
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Window controls
+            const windowBtns = document.querySelectorAll('.window-btn');
+            windowBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.classList.contains('btn-close')) {
+                        console.log('Close window');
+                    } else if (this.classList.contains('btn-minimize')) {
+                        console.log('Minimize window');
+                    } else if (this.classList.contains('btn-maximize')) {
+                        console.log('Maximize window');
+                    }
+                });
+            });
+
+            // Animate sections on load
+            const sections = document.querySelectorAll('.sidebar-section');
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.style.opacity = '0';
+                    section.style.transform = 'translateY(20px)';
+                    section.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        section.style.opacity = '1';
+                        section.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
