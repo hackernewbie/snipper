@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using System.Threading.Tasks;
+using System.Windows.Media.Effects;
 
 namespace Snipper
 {
@@ -20,9 +21,23 @@ namespace Snipper
 
         public MainWindow()
         {
-             InitializeComponent();
+            InitializeComponent();
+            InitializeImageEffect();
         }
 
+        private void InitializeImageEffect()
+        {
+            var shadowEffect = new DropShadowEffect
+            {
+                Color = Colors.LightSlateGray,
+                Direction = 315,
+                ShadowDepth = 10,
+                BlurRadius = 5,
+                Opacity = 0.5
+            };
+
+            ScreenshotImage.Effect = shadowEffect;
+        }
         private void CaptureButton_Click(object sender, RoutedEventArgs e)
         {
             // Hide main window
@@ -205,6 +220,56 @@ namespace Snipper
             {
                 double inset = InsetSlider.Value;
                 ScreenshotContainer.Margin = new Thickness(inset);
+            }
+        }
+
+        private void DepthSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (ScreenshotImage?.Effect is DropShadowEffect shadowEffect)
+            {
+                double depth = DepthSlider.Value;
+
+                // Adjust shadow properties
+                shadowEffect.ShadowDepth = depth;
+                shadowEffect.BlurRadius = depth * 0.5; // Scale blur with depth
+                shadowEffect.Opacity = Math.Min(1.0, depth / 20.0); // Opacity based on depth
+            }
+        }
+
+        private void ShadowBlurSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (ScreenshotImage?.Effect is DropShadowEffect shadowEffect)
+            {
+                shadowEffect.BlurRadius = ShadowBlurSlider.Value;
+            }
+        }
+
+        private void ShadowOpacitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (ScreenshotImage?.Effect is DropShadowEffect shadowEffect)
+            {
+                shadowEffect.Opacity = ShadowOpacitySlider.Value;
+            }
+        }
+
+        private void PaddingPresetComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PaddingPresetComboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                if (int.TryParse(selectedItem.Tag.ToString(), out int padding))
+                {
+                    if (padding >= 0) // Not "Custom"
+                    {
+                        ScreenshotImage.Margin = new Thickness(padding);
+
+                        // Update slider if you have one
+                        if (PaddingSlider != null)
+                        {
+                            PaddingSlider.Value = padding;
+                        }
+                    }
+                    // If "Custom" is selected, do nothing - let user use slider
+                }
             }
         }
     }

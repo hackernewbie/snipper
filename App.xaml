@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              >
     <Application.Resources>
-        <DropShadowEffect x:Key="DropShadowEffect" 
+        <!--<DropShadowEffect x:Key="DropShadowEffect" 
                          ShadowDepth="10" 
                          Color="Gray" 
-                         Opacity="0.8" 
-                         BlurRadius="15"/>
+                         Opacity="1" 
+                         BlurRadius="10"/>-->
 
         <!-- Logo as resource -->
         <Viewbox x:Key="WinSnipperLogo" Stretch="Uniform">
