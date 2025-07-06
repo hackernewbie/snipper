@@ -60,6 +60,8 @@ namespace Snipper
             ScreenshotImage.Source = screenshot;
             PlaceholderText.Visibility = Visibility.Collapsed;
 
+            PlaceHolderBorder.Visibility = Visibility.Collapsed;
+
             // Enable copy and save buttons
             CopyButton.IsEnabled = true;
             SaveButton.IsEnabled = true;
@@ -205,6 +207,9 @@ namespace Snipper
         {
 
         }
+        private void Close_Click(object sender, RoutedEventArgs e) => Close();
+        private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+        private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
         private void PaddingSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
