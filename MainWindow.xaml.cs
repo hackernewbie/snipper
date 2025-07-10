@@ -119,16 +119,8 @@ namespace Snipper
         {
             if (_currentScreenshot != null)
             {
-                // Create a visual from the screenshot container
-                RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
-                    (int)ScreenshotContainer.ActualWidth,
-                    (int)ScreenshotContainer.ActualHeight,
-                    96, 96, PixelFormats.Pbgra32);
+                Clipboard.SetImage(_currentScreenshot);
 
-                renderBitmap.Render(ScreenshotContainer);
-
-                Clipboard.SetImage(renderBitmap);
-                
                 string originalTitle = this.Title;
                 this.Title = "Screenshot copied to clipboard successfully!";
 
@@ -163,18 +155,21 @@ namespace Snipper
 
                 if (saveDialog.ShowDialog() == true)
                 {
-                    // Create a visual from the screenshot container
-                    RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
-                        (int)ScreenshotContainer.ActualWidth,
-                        (int)ScreenshotContainer.ActualHeight,
-                        96, 96, PixelFormats.Pbgra32);
+                    // Save the original screenshot directly, not the UI container
+                    BitmapEncoder encoder;
 
-                    renderBitmap.Render(ScreenshotContainer);
+                    if (saveDialog.FilterIndex == 1) // PNG
+                    {
+                        encoder = new PngBitmapEncoder();
+                    }
+                    else // JPEG
+                    {
+                        var jpegEncoder = new JpegBitmapEncoder();
+                        jpegEncoder.QualityLevel = 100; // Maximum quality. Can hook it upp to a 'quality' slider later on
+                        encoder = jpegEncoder;
+                    }
 
-                    BitmapEncoder encoder = saveDialog.FilterIndex == 1 ?
-                        new PngBitmapEncoder() : new JpegBitmapEncoder();
-
-                    encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+                    encoder.Frames.Add(BitmapFrame.Create(_currentScreenshot));
 
                     using (FileStream stream = new FileStream(saveDialog.FileName, FileMode.Create))
                     {
@@ -190,9 +185,7 @@ namespace Snipper
                 string originalTitle = this.Title;
                 string newMessage = "Nothing to save!\n Please take a screenshot first!";
                 this.Title = newMessage;
-
                 PlaceholderText.Text = newMessage;
-
                 await Task.Delay(3000);
                 this.Title = originalTitle;
             }
@@ -276,6 +269,11 @@ namespace Snipper
                     // If "Custom" is selected, do nothing - let user use slider
                 }
             }
+        }
+
+        private void VPaddingSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+
         }
     }
 }

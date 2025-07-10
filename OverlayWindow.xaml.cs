@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;  // For Path
+using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 
 namespace Snipper
@@ -205,14 +205,27 @@ namespace Snipper
 
         private BitmapSource CaptureScreen(int x, int y, int width, int height)
         {
-            using (Bitmap bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+            // DPI from current window
+            var dpiScale = VisualTreeHelper.GetDpi(this); // 'this' is the Window in question
+            double scaleX = dpiScale.DpiScaleX;
+            double scaleY = dpiScale.DpiScaleY;
+
+            // Scaling to physical pixels
+            int scaledX = (int)(x * scaleX);
+            int scaledY = (int)(y * scaleY);
+            int scaledWidth = (int)(width * scaleX);
+            int scaledHeight = (int)(height * scaleY);
+
+            using (Bitmap bitmap = new Bitmap(scaledWidth, scaledHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
             {
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
-                    graphics.CopyFromScreen(x, y, 0, 0, new System.Drawing.Size(width, height),
+                    graphics.CompositingQuality = CompositingQuality.HighQuality;
+                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+                    graphics.CopyFromScreen(scaledX, scaledY, 0, 0, new System.Drawing.Size(scaledWidth, scaledHeight),
                         CopyPixelOperation.SourceCopy);
                 }
-
                 return ConvertBitmapToBitmapSource(bitmap);
             }
         }
