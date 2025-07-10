@@ -119,7 +119,23 @@ namespace Snipper
         {
             if (_currentScreenshot != null)
             {
-                Clipboard.SetImage(_currentScreenshot);
+                // Get actual DPI for high-quality saving
+                var dpi = VisualTreeHelper.GetDpi(this);
+
+                // Calculate actual pixel dimensions (not logical units)
+                int pixelWidth = (int)(ScreenshotContainer.ActualWidth * dpi.DpiScaleX);
+                int pixelHeight = (int)(ScreenshotContainer.ActualHeight * dpi.DpiScaleY);
+
+                RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
+                    pixelWidth,
+                    pixelHeight,
+                    dpi.PixelsPerInchX,
+                    dpi.PixelsPerInchY,
+                    PixelFormats.Pbgra32);
+
+                renderBitmap.Render(ScreenshotContainer);
+
+                Clipboard.SetImage(renderBitmap);
 
                 string originalTitle = this.Title;
                 this.Title = "Screenshot copied to clipboard successfully!";
@@ -155,9 +171,23 @@ namespace Snipper
 
                 if (saveDialog.ShowDialog() == true)
                 {
-                    // Save the original screenshot directly, not the UI container
-                    BitmapEncoder encoder;
+                    // Get actual DPI for high-quality saving
+                    var dpi = VisualTreeHelper.GetDpi(this);
 
+                    // Calculate actual pixel dimensions (not logical units)
+                    int pixelWidth = (int)(ScreenshotContainer.ActualWidth * dpi.DpiScaleX);
+                    int pixelHeight = (int)(ScreenshotContainer.ActualHeight * dpi.DpiScaleY);
+
+                    RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
+                        pixelWidth,
+                        pixelHeight,
+                        dpi.PixelsPerInchX,
+                        dpi.PixelsPerInchY,
+                        PixelFormats.Pbgra32);
+
+                    renderBitmap.Render(ScreenshotContainer);
+
+                    BitmapEncoder encoder;
                     if (saveDialog.FilterIndex == 1) // PNG
                     {
                         encoder = new PngBitmapEncoder();
@@ -165,11 +195,11 @@ namespace Snipper
                     else // JPEG
                     {
                         var jpegEncoder = new JpegBitmapEncoder();
-                        jpegEncoder.QualityLevel = 100; // Maximum quality. Can hook it upp to a 'quality' slider later on
+                        jpegEncoder.QualityLevel = 100;
                         encoder = jpegEncoder;
                     }
 
-                    encoder.Frames.Add(BitmapFrame.Create(_currentScreenshot));
+                    encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
 
                     using (FileStream stream = new FileStream(saveDialog.FileName, FileMode.Create))
                     {

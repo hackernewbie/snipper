@@ -231,7 +231,7 @@
 
                     <Border Name="PlaceholderWatermark" CornerRadius="15" Margin="20 20 25 25">
                         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                            <TextBlock Name="txtWatermark" FontSize="16" Opacity="1" FontWeight="Thin" 
+                            <TextBlock Name="txtWatermark" FontSize="18" Opacity="1" FontWeight="Thin" 
                                        Foreground="White"><Run Text="Screenshot by WinSnipper"/></TextBlock>
                         </StackPanel>
                     </Border>
