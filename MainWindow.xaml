@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Snipper.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Screenshot Tool" Height="750" Width="900"
+        Title="Screenshot Tool" Height="790" Width="950"
         Icon="resources/icon.png"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="0,0,0,-6">
@@ -196,45 +196,43 @@
 
             <!-- Screenshot Display Area -->
             <Border Grid.Column="1" BorderBrush="#DDD" BorderThickness="1" CornerRadius="8">
-                <Grid Name="ScreenshotContainer" ClipToBounds="True">
-                    <!-- Background will be set programmatically -->
-                    <Border Name="BackgroundBorder" CornerRadius="8">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#E3F2FD" Offset="0"/>
-                                <GradientStop Color="#FFF99E17" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                    </Border>
-                    <!-- Screenshot Image with OpacityMask for rounded corners -->
-                    <Image Name="ScreenshotImage" Stretch="Uniform" Margin="10,10,10,10" VerticalAlignment="Center">
-                        <Image.OpacityMask>
-                            <VisualBrush>
-                                <VisualBrush.Visual>
-                                    <Border Background="Black" CornerRadius="8" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Image}}"  Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Image}}"/>
-                                </VisualBrush.Visual>
-                            </VisualBrush>
-                        </Image.OpacityMask>
-                    </Image>
-                    <!-- Placeholder Text -->
-                    <!--<TextBlock Name="PlaceholderText" Text="Click Your Screenshot will appear here" 
-                   HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center" 
-                   FontSize="16" Foreground="#666" FontStyle="Italic"/>-->
-                    <Border Name="PlaceHolderBorder" Margin="60,200,60,200" Background="#FAF3F0CC" CornerRadius="15" Padding="30">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <TextBlock Text="🖼️" FontSize="48" HorizontalAlignment="Center" Opacity="0.3"/>
-                            <TextBlock Name="PlaceholderText" HorizontalAlignment="Center" Text="Your screenshot will appear here" FontSize="18" Foreground="#636e72" Margin="0,010"/>
-                            <TextBlock Name="PlaceHolderTextSub" HorizontalAlignment="Center" Text="Click &quot;New Screenshot&quot; to capture your screen with the selected styling options."
-                                       FontSize="14" Foreground="#636e72" Opacity="0.7" TextAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Name="PlaceholderWatermark" CornerRadius="15" Margin="20 20 25 25">
-                        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                            <TextBlock Name="txtWatermark" FontSize="18" Opacity="1" FontWeight="Thin" 
-                                       Foreground="White"><Run Text="Screenshot by WinSnipper"/></TextBlock>
-                        </StackPanel>
-                    </Border>
+                <Grid>
+                    <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Grid x:Name="ScreenshotContainer" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border Name="BackgroundBorder" CornerRadius="8">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#E3F2FD" Offset="0"/>
+                                        <GradientStop Color="#FFF99E17" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                            <Image Name="ScreenshotImage" Stretch="None" Margin="10" Opacity="1" Visibility="Visible" VerticalAlignment="Center">
+                                <Image.OpacityMask>
+                                    <VisualBrush>
+                                        <VisualBrush.Visual>
+                                            <Border Background="Black" CornerRadius="8" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Image}}"  Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Image}}"/>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Image.OpacityMask>
+                            </Image>
+                            <Border Name="PlaceHolderBorder" Margin="60,200,60,200" Background="#FAF3F0CC" CornerRadius="15" Padding="30">
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <TextBlock Text="🖼️" FontSize="48" HorizontalAlignment="Center" Opacity="0.3"/>
+                                    <TextBlock Name="PlaceholderText" HorizontalAlignment="Center" Text="Your screenshot will appear here" FontSize="18" Foreground="#636e72" Margin="0,010"/>
+                                    <TextBlock Name="PlaceHolderTextSub" HorizontalAlignment="Center" Text="Click &quot;New Screenshot&quot; to capture your screen with the selected styling options."
+                                               FontSize="14" Foreground="#636e72" Opacity="0.7" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Name="PlaceholderWatermark" CornerRadius="15" Margin="20 20 25 25">
+                                <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                                    <TextBlock Name="txtWatermark" FontSize="18" Opacity="1" FontWeight="Thin" Foreground="White">
+                                        <Run Text="Screenshot by WinSnipper"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Viewbox>
                 </Grid>
             </Border>
         </Grid>

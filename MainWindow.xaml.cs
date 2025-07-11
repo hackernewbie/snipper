@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using System.Threading.Tasks;
 using System.Windows.Media.Effects;
+using Size = System.Windows.Size;
 
 namespace Snipper
 {
@@ -115,110 +116,100 @@ namespace Snipper
             }
         }
 
-        private async void CopyButton_Click(object sender, RoutedEventArgs e)
+        
+        private RenderTargetBitmap CaptureAtHighRes(FrameworkElement target, double scale)
         {
-            if (_currentScreenshot != null)
+            var originalTransform = target.LayoutTransform;
+
+            try
             {
-                // Get actual DPI for high-quality saving
-                var dpi = VisualTreeHelper.GetDpi(this);
+                var dpi = VisualTreeHelper.GetDpi(target);
 
-                // Calculate actual pixel dimensions (not logical units)
-                int pixelWidth = (int)(ScreenshotContainer.ActualWidth * dpi.DpiScaleX);
-                int pixelHeight = (int)(ScreenshotContainer.ActualHeight * dpi.DpiScaleY);
+                // Apply scale
+                var scaleTransform = new ScaleTransform(scale, scale);
+                target.LayoutTransform = scaleTransform;
 
-                RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
-                    pixelWidth,
-                    pixelHeight,
-                    dpi.PixelsPerInchX,
-                    dpi.PixelsPerInchY,
-                    PixelFormats.Pbgra32);
+                // Layout pass
+                target.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                target.Arrange(new Rect(target.DesiredSize));
+                target.UpdateLayout();
 
-                renderBitmap.Render(ScreenshotContainer);
+                // Force render pass
+                target.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Render, new Action(() => { }));
 
-                Clipboard.SetImage(renderBitmap);
+                // Capture
+                var size = target.DesiredSize;
+                int pixelWidth = (int)(size.Width * dpi.DpiScaleX);
+                int pixelHeight = (int)(size.Height * dpi.DpiScaleY);
 
-                string originalTitle = this.Title;
-                this.Title = "Screenshot copied to clipboard successfully!";
+                var rtb = new RenderTargetBitmap(pixelWidth, pixelHeight, dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
+                rtb.Render(target);
 
-                await Task.Delay(3000);
-                this.Title = originalTitle;
-                
-                //MessageBox.Show("Screenshot copied to clipboard!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                return rtb;
             }
-            else
+            finally
             {
-                string originalTitle = this.Title;
-                string newMessage = "Nothing to copy!\n Please take a screenshot first!";
-                this.Title = newMessage;
+                target.LayoutTransform = originalTransform;
+                target.UpdateLayout();
 
-                PlaceholderText.Text = newMessage;
-
-                await Task.Delay(3000);
-                this.Title = originalTitle;
             }
         }
 
-        private async void SaveButton_Click(object sender, RoutedEventArgs e)
+        // Returns a high‑res snapshot of ScreenshotContainer.
+        private RenderTargetBitmap GetScreenshot()
         {
-            if (_currentScreenshot != null)
+            // If the Viewbox is using Stretch="Uniform", 1× logical scale is enough
+            const double SCALE = 1.0;
+            return CaptureAtHighRes(ScreenshotContainer, SCALE);
+        }
+
+        /// <summary>Saves the given bitmap using a SaveFileDialog.</summary>
+        private void SaveBitmapWithDialog(RenderTargetBitmap bmp)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
             {
-                SaveFileDialog saveDialog = new SaveFileDialog
-                {
-                    Filter = "PNG files (*.png)|*.png|JPEG files (*.jpg)|*.jpg",
-                    DefaultExt = "png",
-                    FileName = $"Snipper_Screenshot_{DateTime.Now:yyyyMMdd_HHmmss}"
-                };
+                Filter = "PNG files (*.png)|*.png|JPEG files (*.jpg)|*.jpg",
+                DefaultExt = "png",
+                FileName = $"Snipper_Screenshot_{DateTime.Now:yyyyMMdd_HHmmss}"
+            };
 
-                if (saveDialog.ShowDialog() == true)
-                {
-                    // Get actual DPI for high-quality saving
-                    var dpi = VisualTreeHelper.GetDpi(this);
+            if (dialog.ShowDialog() != true)
+                return;
 
-                    // Calculate actual pixel dimensions (not logical units)
-                    int pixelWidth = (int)(ScreenshotContainer.ActualWidth * dpi.DpiScaleX);
-                    int pixelHeight = (int)(ScreenshotContainer.ActualHeight * dpi.DpiScaleY);
+            BitmapEncoder encoder = dialog.FilterIndex == 1
+                ? new PngBitmapEncoder()
+                : new JpegBitmapEncoder { QualityLevel = 100 };
 
-                    RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
-                        pixelWidth,
-                        pixelHeight,
-                        dpi.PixelsPerInchX,
-                        dpi.PixelsPerInchY,
-                        PixelFormats.Pbgra32);
+            encoder.Frames.Add(BitmapFrame.Create(bmp));
+            using (var fileSystem = File.Create(dialog.FileName))
+                encoder.Save(fileSystem);
 
-                    renderBitmap.Render(ScreenshotContainer);
+            ShowTempStatus($"Screenshot saved to {dialog.FileName}");
+        }
 
-                    BitmapEncoder encoder;
-                    if (saveDialog.FilterIndex == 1) // PNG
-                    {
-                        encoder = new PngBitmapEncoder();
-                    }
-                    else // JPEG
-                    {
-                        var jpegEncoder = new JpegBitmapEncoder();
-                        jpegEncoder.QualityLevel = 100;
-                        encoder = jpegEncoder;
-                    }
+        
+        private async void ShowTempStatus(string msg)
+        {
+            string old = Title;
+            Title = msg;
+            PlaceholderText.Text = msg;
+            await Task.Delay(3000);
+            Title = old;
+        }
 
-                    encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+        private void CopyButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentScreenshot == null) return;
 
-                    using (FileStream stream = new FileStream(saveDialog.FileName, FileMode.Create))
-                    {
-                        encoder.Save(stream);
-                    }
+            Clipboard.SetImage(GetScreenshot());
+            ShowTempStatus("Screenshot copied to clipboard!");
+        }
 
-                    MessageBox.Show($"Screenshot saved to {saveDialog.FileName}", "Success",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            else
-            {
-                string originalTitle = this.Title;
-                string newMessage = "Nothing to save!\n Please take a screenshot first!";
-                this.Title = newMessage;
-                PlaceholderText.Text = newMessage;
-                await Task.Delay(3000);
-                this.Title = originalTitle;
-            }
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentScreenshot == null) return;
+
+            SaveBitmapWithDialog(GetScreenshot());
         }
 
         private void radius_SelectionChanged(object sender, SelectionChangedEventArgs e)

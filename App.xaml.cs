@@ -56,6 +56,7 @@ namespace Snipper
             base.OnStartup(e);
 
             MainWindow mainWindow = new MainWindow();
+            //mainWindow.WindowState = WindowState.Maximized;
             mainWindow.Show();
         }
     }
