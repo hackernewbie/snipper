@@ -6,7 +6,17 @@
 		<UseWPF>true</UseWPF>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="resources\click.wav" />
+	  <None Remove="resources\crosshair.cur" />
 	  <None Remove="resources\icon.png" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="resources\click.wav">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="resources\crosshair.cur">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>

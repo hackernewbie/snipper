@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("snipper")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5933bba08556e530ba21992c8535e22cd34245bc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6c85c2c2fde2ab99a8d06cb5d1b10cc0fe361b8d")]
 [assembly: System.Reflection.AssemblyProductAttribute("snipper")]
 [assembly: System.Reflection.AssemblyTitleAttribute("snipper")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

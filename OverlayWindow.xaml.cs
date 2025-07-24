@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Media;
 using System.Windows;
-using System.Windows.Media;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Shapes;  // For Path
-using System.Drawing.Imaging;
-using System.Drawing.Drawing2D;
-using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;  // For Path
 
 
 namespace Snipper
@@ -33,6 +34,8 @@ namespace Snipper
 
         private void SetupOverlay()
         {
+            this.Cursor = new Cursor("resources/crosshair.cur");
+
             // Set window to cover all screens
             this.Left = SystemParameters.VirtualScreenLeft;
             this.Top = SystemParameters.VirtualScreenTop;
@@ -196,7 +199,7 @@ namespace Snipper
 
                     ScreenshotCaptured?.Invoke(this, screenshot);
                 }
-
+                PlayScreenshotSound();
                 this.Close();
             }
             // Hide coordinate display when selection is complete
@@ -230,6 +233,18 @@ namespace Snipper
             }
         }
 
+        private void PlayScreenshotSound()
+        {
+            try
+            {
+                var player = new SoundPlayer("resources/click.wav");
+                player.Play();
+            }
+            catch (Exception ex)
+            {
+                // Optional: log or silently ignore
+            }
+        }
         private BitmapSource ConvertBitmapToBitmapSource(Bitmap bitmap)
         {
             var bitmapData = bitmap.LockBits(

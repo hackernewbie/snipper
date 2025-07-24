@@ -14,7 +14,7 @@
             MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
         <!-- Semi-transparent overlay -->
         <Rectangle Name="OverlayRect" Fill="#80000000" />
-
+        
         <!-- Selection rectangle -->
         <Rectangle Name="SelectionRect"
                    Stroke="FloralWhite"

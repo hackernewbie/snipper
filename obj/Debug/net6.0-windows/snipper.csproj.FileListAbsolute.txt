@@ -27,3 +27,6 @@ D:\Projects\snipper\snipper\obj\Debug\net6.0-windows\refint\snipper.dll
 D:\Projects\snipper\snipper\obj\Debug\net6.0-windows\snipper.pdb
 D:\Projects\snipper\snipper\obj\Debug\net6.0-windows\snipper.genruntimeconfig.cache
 D:\Projects\snipper\snipper\obj\Debug\net6.0-windows\ref\snipper.dll
+D:\Projects\snipper\snipper\bin\Debug\net6.0-windows\resources\click.wav
+D:\Projects\snipper\snipper\obj\Debug\net6.0-windows\snipper_Content.g.cs
+D:\Projects\snipper\snipper\bin\Debug\net6.0-windows\resources\crosshair.cur
