@@ -208,30 +208,56 @@ namespace Snipper
 
         private BitmapSource CaptureScreen(int x, int y, int width, int height)
         {
-            // DPI from current window
-            var dpiScale = VisualTreeHelper.GetDpi(this); // 'this' is the Window in question
-            double scaleX = dpiScale.DpiScaleX;
-            double scaleY = dpiScale.DpiScaleY;
+            // Get DPI scaling of current monitor
+            var dpi = VisualTreeHelper.GetDpi(this);
+            double scaleX = dpi.DpiScaleX;
+            double scaleY = dpi.DpiScaleY;
 
-            // Scaling to physical pixels
+            // Convert DIPs → Physical pixels
             int scaledX = (int)(x * scaleX);
             int scaledY = (int)(y * scaleY);
             int scaledWidth = (int)(width * scaleX);
             int scaledHeight = (int)(height * scaleY);
 
-            using (Bitmap bitmap = new Bitmap(scaledWidth, scaledHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+            using (Bitmap bitmap = new Bitmap(scaledWidth, scaledHeight, System.Drawing.Imaging.PixelFormat.Format32bppPArgb))
             {
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
                     graphics.CompositingQuality = CompositingQuality.HighQuality;
-                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    graphics.InterpolationMode = InterpolationMode.NearestNeighbor; // Prevent blur
+                    graphics.PixelOffsetMode = PixelOffsetMode.None;
 
-                    graphics.CopyFromScreen(scaledX, scaledY, 0, 0, new System.Drawing.Size(scaledWidth, scaledHeight),
-                        CopyPixelOperation.SourceCopy);
+                    graphics.CopyFromScreen(scaledX, scaledY, 0, 0, new System.Drawing.Size(scaledWidth, scaledHeight), CopyPixelOperation.SourceCopy);
                 }
+
+                // Convert to WPF BitmapSource with DPI
+                //return ConvertBitmapToBitmapSource(bitmap, dpi.PixelsPerInchX, dpi.PixelsPerInchY);
                 return ConvertBitmapToBitmapSource(bitmap);
             }
         }
+
+
+        private BitmapSource ConvertBitmapToBitmapSource(Bitmap bitmap)
+        {
+            IntPtr hBitmap = bitmap.GetHbitmap();
+            try
+            {
+                return Imaging.CreateBitmapSourceFromHBitmap(
+                    hBitmap,
+                    IntPtr.Zero,
+                    Int32Rect.Empty,
+                    BitmapSizeOptions.FromEmptyOptions());
+            }
+            finally
+            {
+                DeleteObject(hBitmap); // free unmanaged memory
+            }
+        }
+
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        public static extern bool DeleteObject(IntPtr hObject);
+
+
 
         private void PlayScreenshotSound()
         {
@@ -245,22 +271,6 @@ namespace Snipper
                 // Optional: log or silently ignore
             }
         }
-        private BitmapSource ConvertBitmapToBitmapSource(Bitmap bitmap)
-        {
-            var bitmapData = bitmap.LockBits(
-                new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                ImageLockMode.ReadOnly, bitmap.PixelFormat);
-
-            var bitmapSource = BitmapSource.Create(
-                bitmapData.Width, bitmapData.Height,
-                bitmap.HorizontalResolution, bitmap.VerticalResolution,
-                PixelFormats.Bgra32, null,
-                bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
-
-            bitmap.UnlockBits(bitmapData);
-            return bitmapSource;
-        }
-
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (e.Key == Key.Escape)

@@ -55,18 +55,18 @@ namespace Snipper
             // Show main window again
             this.Show();
         }
+
         private void OnScreenshotCaptured(object sender, BitmapSource screenshot)
         {
-            _currentScreenshot = screenshot;
-            ScreenshotImage.Source = screenshot;
+            _currentScreenshot = screenshot;        // full-quality
+            ScreenshotImage.Source = screenshot;    // no extra scaling
+
             PlaceholderText.Visibility = Visibility.Collapsed;
-
             PlaceHolderBorder.Visibility = Visibility.Collapsed;
-
-            // Enable copy and save buttons
             CopyButton.IsEnabled = true;
             SaveButton.IsEnabled = true;
         }
+
 
         private void BackgroundButton_Click(object sender, RoutedEventArgs e)
         {
@@ -116,8 +116,8 @@ namespace Snipper
             }
         }
 
-        
-        private RenderTargetBitmap CaptureAtHighRes(FrameworkElement target, double scale)
+
+        private RenderTargetBitmap CaptureAtHighRes(FrameworkElement target)
         {
             var originalTransform = target.LayoutTransform;
 
@@ -125,43 +125,37 @@ namespace Snipper
             {
                 var dpi = VisualTreeHelper.GetDpi(target);
 
-                // Apply scale
-                var scaleTransform = new ScaleTransform(scale, scale);
-                target.LayoutTransform = scaleTransform;
+                // Capture at actual physical pixel size
+                double actualWidth = target.ActualWidth * dpi.DpiScaleX;
+                double actualHeight = target.ActualHeight * dpi.DpiScaleY;
 
-                // Layout pass
-                target.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                target.Arrange(new Rect(target.DesiredSize));
+                target.LayoutTransform = Transform.Identity;
+                target.Measure(new Size(target.ActualWidth, target.ActualHeight));
+                target.Arrange(new Rect(0, 0, target.ActualWidth, target.ActualHeight));
                 target.UpdateLayout();
 
-                // Force render pass
-                target.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Render, new Action(() => { }));
+                var rtb = new RenderTargetBitmap(
+                    (int)actualWidth,
+                    (int)actualHeight,
+                    dpi.PixelsPerInchX,
+                    dpi.PixelsPerInchY,
+                    PixelFormats.Pbgra32);
 
-                // Capture
-                var size = target.DesiredSize;
-                int pixelWidth = (int)(size.Width * dpi.DpiScaleX);
-                int pixelHeight = (int)(size.Height * dpi.DpiScaleY);
-
-                var rtb = new RenderTargetBitmap(pixelWidth, pixelHeight, dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
                 rtb.Render(target);
-
                 return rtb;
             }
             finally
             {
                 target.LayoutTransform = originalTransform;
                 target.UpdateLayout();
-
             }
         }
 
-        // Returns a high‑res snapshot of ScreenshotContainer.
         private RenderTargetBitmap GetScreenshot()
         {
-            // If the Viewbox is using Stretch="Uniform", 1× logical scale is enough
-            const double SCALE = 1.0;
-            return CaptureAtHighRes(ScreenshotContainer, SCALE);
+            return CaptureAtHighRes(ScreenshotContainer);
         }
+
 
         /// <summary>Saves the given bitmap using a SaveFileDialog.</summary>
         private void SaveBitmapWithDialog(RenderTargetBitmap bmp)

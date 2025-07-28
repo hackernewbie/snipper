@@ -207,9 +207,20 @@
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Image Name="ScreenshotImage" Stretch="None" Margin="25" Opacity="1" Visibility="Visible"
-                                   VerticalAlignment="Center">
-                                <Image.OpacityMask>
+                            <!--<Image Name="ScreenshotImage" Stretch="None" SnapsToDevicePixels="True"
+                                   UseLayoutRounding="True" Margin="25" Opacity="1" Visibility="Visible" 
+                                   VerticalAlignment="Center">-->
+                            <Image Name="ScreenshotImage"
+                                           Stretch="Uniform"
+                                           SnapsToDevicePixels="True"
+                                           UseLayoutRounding="True"
+                                           Margin="25"
+                                           Opacity="1"
+                                           Visibility="Visible"
+                                           VerticalAlignment="Center"
+                                           RenderOptions.BitmapScalingMode="HighQuality">
+
+                            <Image.OpacityMask>
                                     <VisualBrush>
                                         <VisualBrush.Visual>
                                             <Border Background="Black" CornerRadius="8" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Image}}"  Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Image}}"/>
