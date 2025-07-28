@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.Media;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,7 +10,8 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;  // For Path
+using Brushes = System.Drawing.Brushes;
+using WinShapes = System.Windows.Shapes;  // For Path
 
 
 namespace Snipper
@@ -19,10 +21,7 @@ namespace Snipper
         private bool _isSelecting;
         private System.Windows.Point _startPoint;
         private System.Windows.Point _endPoint;
-
-        private System.Windows.Shapes.Rectangle TopOverlay, BottomOverlay, LeftOverlay, RightOverlay;
-
-
+        private WinShapes.Rectangle TopOverlay, BottomOverlay, LeftOverlay, RightOverlay;
 
         public event EventHandler<BitmapSource>? ScreenshotCaptured;
 
@@ -54,7 +53,7 @@ namespace Snipper
             var overlayBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(128, 0, 0, 0));
 
             // Create a single overlay rectangle initially
-            TopOverlay = new System.Windows.Shapes.Rectangle
+            TopOverlay = new WinShapes.Rectangle
             {
                 Fill = overlayBrush,
                 Width = OverlayCanvas.Width,
@@ -63,6 +62,7 @@ namespace Snipper
 
             Canvas.SetLeft(TopOverlay, 0);
             Canvas.SetTop(TopOverlay, 0);
+
             OverlayCanvas.Children.Add(TopOverlay);
         }
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -72,8 +72,10 @@ namespace Snipper
 
             // Show selection rectangle
             SelectionRect.Visibility = Visibility.Visible;
+
             Canvas.SetLeft(SelectionRect, _startPoint.X);
             Canvas.SetTop(SelectionRect, _startPoint.Y);
+
             SelectionRect.Width = 0;
             SelectionRect.Height = 0;
 
@@ -88,6 +90,7 @@ namespace Snipper
             if (_isSelecting)
             {
                 _endPoint = e.GetPosition(OverlayCanvas);
+
                 double left = Math.Min(_startPoint.X, _endPoint.X);
                 double top = Math.Min(_startPoint.Y, _endPoint.Y);
                 double width = Math.Abs(_endPoint.X - _startPoint.X);
@@ -96,6 +99,7 @@ namespace Snipper
                 // Update selection rectangle
                 Canvas.SetLeft(SelectionRect, left);    
                 Canvas.SetTop(SelectionRect, top);
+
                 SelectionRect.Width = width;
                 SelectionRect.Height = height;
 
@@ -142,7 +146,7 @@ namespace Snipper
             double canvasHeight = OverlayCanvas.Height;
 
             // Top rectangle
-            TopOverlay = new System.Windows.Shapes.Rectangle { Fill = overlayBrush };
+            TopOverlay = new WinShapes.Rectangle { Fill = overlayBrush };
             Canvas.SetLeft(TopOverlay, 0);
             Canvas.SetTop(TopOverlay, 0);
             TopOverlay.Width = canvasWidth;
@@ -150,7 +154,7 @@ namespace Snipper
             OverlayCanvas.Children.Add(TopOverlay);
 
             // Bottom rectangle
-            BottomOverlay = new System.Windows.Shapes.Rectangle { Fill = overlayBrush };
+            BottomOverlay = new WinShapes.Rectangle { Fill = overlayBrush };
             Canvas.SetLeft(BottomOverlay, 0);
             Canvas.SetTop(BottomOverlay, selectionTop + selectionHeight);
             BottomOverlay.Width = canvasWidth;
@@ -158,7 +162,7 @@ namespace Snipper
             OverlayCanvas.Children.Add(BottomOverlay);
 
             // Left rectangle
-            LeftOverlay = new System.Windows.Shapes.Rectangle { Fill = overlayBrush };
+            LeftOverlay = new WinShapes.Rectangle { Fill = overlayBrush };
             Canvas.SetLeft(LeftOverlay, 0);
             Canvas.SetTop(LeftOverlay, selectionTop);
             LeftOverlay.Width = selectionLeft;
@@ -166,7 +170,7 @@ namespace Snipper
             OverlayCanvas.Children.Add(LeftOverlay);
 
             // Right rectangle
-            RightOverlay = new System.Windows.Shapes.Rectangle { Fill = overlayBrush };
+            RightOverlay = new WinShapes.Rectangle { Fill = overlayBrush };
             Canvas.SetLeft(RightOverlay, selectionLeft + selectionWidth);
             Canvas.SetTop(RightOverlay, selectionTop);
             RightOverlay.Width = canvasWidth - (selectionLeft + selectionWidth);
@@ -197,9 +201,14 @@ namespace Snipper
                         (int)screenPoint.X, (int)screenPoint.Y,
                         (int)width, (int)height);
 
+                    // Save watermarkedImage...
+                    //var watermarkedImage = AddWatermark(screenshot, "Snipper");       //This adds watermark ON the image
+                    //ScreenshotCaptured?.Invoke(this, watermarkedImage);
+
                     ScreenshotCaptured?.Invoke(this, screenshot);
                 }
                 PlayScreenshotSound();
+                
                 this.Close();
             }
             // Hide coordinate display when selection is complete
@@ -236,7 +245,6 @@ namespace Snipper
             }
         }
 
-
         private BitmapSource ConvertBitmapToBitmapSource(Bitmap bitmap)
         {
             IntPtr hBitmap = bitmap.GetHbitmap();
@@ -257,8 +265,6 @@ namespace Snipper
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
         public static extern bool DeleteObject(IntPtr hObject);
 
-
-
         private void PlayScreenshotSound()
         {
             try
@@ -271,13 +277,53 @@ namespace Snipper
                 // Optional: log or silently ignore
             }
         }
-        protected override void OnKeyDown(KeyEventArgs e)
+
+        private RenderTargetBitmap AddWatermark(System.Windows.Media.Imaging.BitmapSource source, string watermarkText)
         {
-            if (e.Key == Key.Escape)
+            int width = source.PixelWidth;
+            int height = source.PixelHeight;
+
+            // Create a visual to draw both the image and watermark
+            var visual = new System.Windows.Media.DrawingVisual();
+            using (var dc = visual.RenderOpen())
             {
-                this.Close();
+                // Draw original image
+                dc.DrawImage(source, new System.Windows.Rect(0, 0, width, height));
+
+                // Create dynamic TextBlock for watermark
+                var textBlock = new System.Windows.Controls.TextBlock
+                {
+                    Text = watermarkText,
+                    Foreground = new System.Windows.Media.SolidColorBrush(
+                        System.Windows.Media.Color.FromArgb(150, 255, 255, 255)), // semi-transparent white
+                    FontSize = width * 0.015, // 1.5% of image width
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI")
+                };
+
+                // Measure & arrange text
+                textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+                textBlock.Arrange(new System.Windows.Rect(textBlock.DesiredSize));
+
+                // Calculate bottom-right position
+                double x = width - textBlock.DesiredSize.Width - (width * 0.01);
+                double y = height - textBlock.DesiredSize.Height - (height * 0.01);
+
+                // Draw the watermark
+                dc.PushOpacity(0.6);
+                dc.DrawRectangle(
+                    new System.Windows.Media.VisualBrush(textBlock),
+                    null,
+                    new System.Windows.Rect(x, y, textBlock.DesiredSize.Width, textBlock.DesiredSize.Height));
+                dc.Pop();
             }
-            base.OnKeyDown(e);
+
+            // Render the visual to a new bitmap
+            var renderTarget = new System.Windows.Media.Imaging.RenderTargetBitmap(
+                width, height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            renderTarget.Render(visual);
+
+            return renderTarget;
         }
+
     }
 }

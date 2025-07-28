@@ -7,12 +7,15 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
+using System.Windows.Media ;
+using WinPoint = System.Windows;
+using WinColors = System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using System.Threading.Tasks;
 using System.Windows.Media.Effects;
 using Size = System.Windows.Size;
+using Brushes = System.Windows.Media.Brushes;
 
 namespace Snipper
 {
@@ -65,8 +68,17 @@ namespace Snipper
             PlaceHolderBorder.Visibility = Visibility.Collapsed;
             CopyButton.IsEnabled = true;
             SaveButton.IsEnabled = true;
-        }
 
+            UpdateWatermarkSize();
+           
+        }
+        private void UpdateWatermarkSize()
+        {
+            if (ScreenshotPreview.ActualWidth > 0)
+            {
+                WatermarkText.FontSize = ScreenshotPreview.ActualWidth * 0.015;         //1.5% of the actual size
+            }
+        }
 
         private void BackgroundButton_Click(object sender, RoutedEventArgs e)
         {
@@ -76,43 +88,176 @@ namespace Snipper
             switch (backgroundType)
             {
                 case "BlueGradient":
-                    BackgroundBorder.Background = new LinearGradientBrush(
-                        System.Windows.Media.Color.FromRgb(227, 242, 253), // light blue
-                        System.Windows.Media.Color.FromRgb(100, 181, 246), // mid blue
-                        new System.Windows.Point(0.5, 0), // top center
-                        new System.Windows.Point(0.5, 1)); // bottom center
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(220, 235, 255),
+                        WinColors.Color.FromRgb(175, 205, 240),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
                     break;
+
                 case "PurpleGradient":
-                    BackgroundBorder.Background = new LinearGradientBrush(
-                        System.Windows.Media.Color.FromRgb(243, 229, 245), // soft lavender
-                        System.Windows.Media.Color.FromRgb(149, 117, 205), // soft purple
-                        new System.Windows.Point(0.5, 0),
-                        new System.Windows.Point(0.5, 1));
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(235, 225, 245),
+                        WinColors.Color.FromRgb(195, 170, 225),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
                     break;
+
                 case "OrangeGradient":
-                    BackgroundBorder.Background = new LinearGradientBrush(
-                        System.Windows.Media.Color.FromRgb(255, 244, 229), // warm peach base
-                        System.Windows.Media.Color.FromRgb(255, 183, 77),  // soft amber
-                        new System.Windows.Point(0.5, 0),
-                        new System.Windows.Point(0.5, 1));
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(255, 240, 220),
+                        WinColors.Color.FromRgb(255, 205, 160),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
                     break;
+
                 case "GrayGradient":
-                    BackgroundBorder.Background = new LinearGradientBrush(
-                        System.Windows.Media.Color.FromRgb(230, 230, 230), // light gray
-                        System.Windows.Media.Color.FromRgb(74,74,74), // slightly darker gray
-                        new System.Windows.Point(0.5, 0),
-                        new System.Windows.Point(0.5, 1));
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(240, 240, 240),
+                        WinColors.Color.FromRgb(200, 200, 200),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
                     break;
+
                 case "BlackGradient":
-                    BackgroundBorder.Background = new LinearGradientBrush(
-                        System.Windows.Media.Color.FromRgb(230, 230, 230),   // dark gray
-                        System.Windows.Media.Color.FromRgb(13, 13, 13),   // near black
-                        new System.Windows.Point(0.5, 0),
-                        new System.Windows.Point(0.5, 1));
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(210, 210, 210),
+                        WinColors.Color.FromRgb(140, 140, 140),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
                     break;
+
+                case "TealGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(225, 245, 240),
+                        WinColors.Color.FromRgb(185, 225, 215),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "PinkGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(255, 240, 245),
+                        WinColors.Color.FromRgb(250, 195, 210),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "CyanGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(230, 250, 250),
+                        WinColors.Color.FromRgb(190, 230, 230),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "YellowGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(255, 255, 230),
+                        WinColors.Color.FromRgb(255, 240, 180),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "RedGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(255, 235, 235),
+                        WinColors.Color.FromRgb(245, 180, 180),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "IndigoGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(230, 235, 250),
+                        WinColors.Color.FromRgb(185, 195, 225),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "GreenGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(235, 250, 235),
+                        WinColors.Color.FromRgb(185, 225, 185),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "PeachGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(255, 245, 240),
+                        WinColors.Color.FromRgb(255, 210, 190),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "SkyBlueGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(235, 245, 255),
+                        WinColors.Color.FromRgb(185, 210, 235),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "EmeraldGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(235, 255, 245),
+                        WinColors.Color.FromRgb(185, 225, 200),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "LavenderGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(245, 240, 255),
+                        WinColors.Color.FromRgb(210, 190, 230),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "CharcoalGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(240, 240, 240),
+                        WinColors.Color.FromRgb(160, 160, 160),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
+                case "LightBlueGradient":
+                    BackgroundBorder.Background = new WinColors.LinearGradientBrush(
+                        WinColors.Color.FromRgb(235, 245, 255),
+                        WinColors.Color.FromRgb(185, 215, 240),
+                        new WinPoint.Point(0.5, 0),
+                        new WinPoint.Point(0.5, 1));
+                    break;
+
                 case "Transparent":
-                    BackgroundBorder.Background = new SolidColorBrush(Colors.Transparent);
-                    break;
+                    BackgroundBorder.Background = new DrawingBrush
+                    {
+                        TileMode = TileMode.Tile,
+                        Viewport = new Rect(0, 0, 20, 20),
+                        ViewportUnits = BrushMappingMode.Absolute,
+                        Drawing = new DrawingGroup
+                        {
+                            Children =
+                            {
+                                new GeometryDrawing(Brushes.White, null,
+                                    new RectangleGeometry(new Rect(0, 0, 20, 20))),
+                                new GeometryDrawing(
+                                    new SolidColorBrush(WinColors.Color.FromRgb(240, 240, 240)),
+                                    null,
+                                    new GeometryGroup
+                                    {
+                                        Children =
+                                        {
+                                            new RectangleGeometry(new Rect(0, 0, 10, 10)),
+                                            new RectangleGeometry(new Rect(10, 10, 10, 10))
+                                        }
+                                    })
+                            }
+                        }
+                    };
+                break;
             }
         }
 
@@ -225,6 +370,8 @@ namespace Snipper
             {
                 double padding = PaddingSlider.Value;
                 ScreenshotImage.Margin = new Thickness(padding);
+
+                UpdateWatermarkSize();
             }
         }
         private void InsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -232,7 +379,9 @@ namespace Snipper
             if (BackgroundBorder != null)
             {
                 double inset = InsetSlider.Value;
-                ScreenshotContainer.Margin = new Thickness(inset);
+                //ScreenshotContainer.Margin = new Thickness(inset);
+                ScreenshotImage.Margin = new Thickness(inset);
+                UpdateWatermarkSize();
             }
         }
 
@@ -286,9 +435,10 @@ namespace Snipper
             }
         }
 
-        private void VPaddingSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-
+            UpdateWatermarkSize();
         }
+
     }
 }

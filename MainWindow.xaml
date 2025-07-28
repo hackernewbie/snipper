@@ -1,9 +1,10 @@
 ﻿<Window x:Class="Snipper.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Screenshot Tool" Height="750" Width="950"
+        Title="WinSnipper - Create Beautiful Screenshots in seconds" Height="750" Width="950"
         Icon="resources/icon.png"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        SizeChanged="Window_SizeChanged">
     <Grid Margin="0,0,0,-6">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="134*"/>
@@ -21,42 +22,61 @@
                 Width="64" Height="64" Margin="5" Grid.Row="0" Grid.Column="0"/>-->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="140,25,0,5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="496">
             <!-- Screenshot Button - Styled and Active -->
-            <Button Name="CaptureButton" Content="📷 New Screenshot" Click="CaptureButton_Click" 
-            Padding="15,8" Margin="5" FontSize="14" Foreground="White"
-            BorderBrush="Transparent" Cursor="Hand">
+            <Button Name="CaptureButton"
+        Content="📷 New Screenshot"
+        Click="CaptureButton_Click"
+        Padding="18,10"
+        Margin="5"
+        FontSize="14"
+        Foreground="White"
+        FontWeight="SemiBold"
+        BorderBrush="Transparent"
+        Cursor="Hand">
                 <Button.Background>
+                    <!-- Primary CTA: vibrant emerald gradient -->
                     <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                        <GradientStop Color="#FF81C784"/>
-                        <GradientStop Color="#FF81C784" Offset="1"/>
+                        <GradientStop Color="#FF43D27C" Offset="0"/>
+                        <GradientStop Color="#FF2E7D32" Offset="1"/>
                     </LinearGradientBrush>
                 </Button.Background>
             </Button>
 
-            <!-- Copy Button - Styled but Disabled -->
-            <Button Name="CopyButton" Content="📋 Copy Screenshot" Click="CopyButton_Click" 
-            Padding="15,8" Margin="5" FontSize="14" 
-            Foreground="White"
-            BorderBrush="Transparent" Cursor="Hand" >
+            <Button Name="CopyButton"
+        Content="📋 Copy Screenshot"
+        Click="CopyButton_Click"
+        Padding="16,9"
+        Margin="5"
+        FontSize="14"
+        Foreground="White"
+        BorderBrush="Transparent"
+        Cursor="Hand">
                 <Button.Background>
+                    <!-- Secondary: subtle blue gradient -->
                     <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                        <GradientStop Color="#FF64B5F6"/>
-                        <GradientStop Color="#FF64B5F6" Offset="1"/>
+                        <GradientStop Color="#FF7ECFFF" Offset="0"/>
+                        <GradientStop Color="#FF1E88E5" Offset="1"/>
                     </LinearGradientBrush>
                 </Button.Background>
             </Button>
 
-            <!-- Save Button - Styled but Disabled -->
-            <Button Name="SaveButton" Content="💾 Save Screenshot" Click="SaveButton_Click" 
-            Padding="15,8" Margin="5" FontSize="14" 
-            Foreground="White"
-            BorderBrush="Transparent" Cursor="Hand">
+            <Button Name="SaveButton"
+        Content="💾 Save Screenshot"
+        Click="SaveButton_Click"
+        Padding="16,9"
+        Margin="5"
+        FontSize="14"
+        Foreground="White"
+        BorderBrush="Transparent"
+        Cursor="Hand">
                 <Button.Background>
+                    <!-- Secondary: soft purple gradient -->
                     <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                        <GradientStop Color="#FFBA68C8"/>
-                        <GradientStop Color="#FFBA68C8" Offset="1"/>
+                        <GradientStop Color="#FFE1BEE7" Offset="0"/>
+                        <GradientStop Color="#FF8E24AA" Offset="1"/>
                     </LinearGradientBrush>
                 </Button.Background>
             </Button>
+
         </StackPanel>
 
 
@@ -70,53 +90,217 @@
 
             <!-- Background Options Panel, the Sidebar -->
             <ScrollViewer VerticalScrollBarVisibility="Auto" Height="Auto">
-                <StackPanel Grid.Column="0" Margin="0,0,20,0">
-                    <TextBlock Text="Choose Backgrounds" FontSize="16" TextAlignment="Center" 
-                           FontWeight="Bold" Margin="0,0,0,15"/>
+                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                    <TextBlock Text="Choose Backgrounds" FontSize="15" TextAlignment="Center" 
+                          FontFamily="Segoe UI" FontWeight="SemiBold"  Margin="0,0,0,15"/>
+                    
+                    <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <Button Name="GradientBlue" ToolTip="Blue Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                                Tag="BlueGradient" Margin="5,5" Padding="10 15" Foreground="White"  
+                                RenderTransformOrigin="0.5,0.5" Cursor="Hand" Width="80" HorizontalAlignment="Left">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFDCEBFF" Offset="0"/>
+                                    <GradientStop Color="#FFAFD2F0" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+                        <Button Name="GradientPurple" ToolTip="Purple Gradient" BorderBrush="White" Click="BackgroundButton_Click" HorizontalAlignment="Left"
+                                Tag="PurpleGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand" >
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFEBE1F5" Offset="0"/>
+                                    <GradientStop Color="#FFC3AAE1" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+                        <Button Name="GradientOrange" ToolTip="Orange Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                                Tag="OrangeGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand" >
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFFFF0DC" Offset="0"/>
+                                    <GradientStop Color="#FFFFCDA0" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
 
+                        <Button Name="GrayGradient" ToolTip="Gray Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                                Tag="GrayGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand" >
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFF0F0F0" Offset="0"/>
+                                    <GradientStop Color="#FFC8C8C8" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
 
-                    <Button Name="GradientBlue" Content="Blue Gradient" Click="BackgroundButton_Click" 
-                        Tag="BlueGradient" Margin="0,5" Padding="10" Foreground="White"  
-                        RenderTransformOrigin="0.5,0.5" Cursor="Hand" >
-                        <Button.Background>
-                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                <GradientStop Color="#FF64B5F6" Offset="0"/>
-                                <GradientStop Color="#FF64B5F6" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Button.Background>
-                    </Button>
-                    <Button Name="GradientPurple" Content="Purple Gradient" Click="BackgroundButton_Click" 
-                        Tag="PurpleGradient" Margin="0,5" Padding="10" Foreground="White" Cursor="Hand" >
-                        <Button.Background>
-                            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                <GradientStop Color="#FF9575CD" Offset="0"/>
-                                <GradientStop Color="#FF9575CD" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Button.Background>
-                    </Button>
-                    <Button Name="GradientOrange" Content="Orange Gradient" Click="BackgroundButton_Click" 
-                        Tag="OrangeGradient" Margin="0,5" Padding="10" Foreground="White" Cursor="Hand" >
-                        <Button.Background>
-                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                <GradientStop Color="#FFF99E17"/>
-                                <GradientStop Color="#FFF99E17" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Button.Background>
-                    </Button>
-                    <Button Name="GrayGradient" Content="Gray Gradient" Click="BackgroundButton_Click" 
-                        Tag="GrayGradient" Margin="0,5" Padding="10" Foreground="White" BorderBrush="#DDD" Cursor="Hand" >
-                        <Button.Background>
-                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                <GradientStop Color="Gray"/>
-                                <GradientStop Color="Gray" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Button.Background>
-                    </Button>
-                    <Button Name="BlackGradient" Content="Black Gradient" Click="BackgroundButton_Click" 
-                        Tag="BlackGradient" Margin="0,5" Padding="10" Background="Black" Foreground="White" Cursor="Hand" />
-                    <Button Name="Transparent" Content="Transparent" Click="BackgroundButton_Click" 
-                        Tag="Transparent" Margin="0,5" Padding="10" Background="Transparent" Foreground="Black" BorderBrush="#DDD" Cursor="Hand" />
+                        <Button Name="BlackGradient" ToolTip="Black Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                                Tag="BlackGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFD2D2D2" Offset="0"/>
+                                    <GradientStop Color="#FF8C8C8C" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
 
+                        <Button Name="GradientTeal" ToolTip="Teal Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                            Tag="TealGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFE1F5F0" Offset="0"/>
+                                    <GradientStop Color="#FFB9E1D7" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientPink" ToolTip="Pink Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                            Tag="PinkGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFFFF0F5" Offset="0"/>
+                                    <GradientStop Color="#FFFAC3D2" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientCyan" ToolTip="Cyan Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                            Tag="CyanGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFE6FAFA" Offset="0"/>
+                                    <GradientStop Color="#FFBEE6E6" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientYellow" ToolTip="Yellow Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                                Tag="YellowGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="Black" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFFFFFE6" Offset="0"/>
+                                    <GradientStop Color="#FFFFF0B4" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientRed" ToolTip="Red Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                            Tag="RedGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFFFEBEB" Offset="0"/>
+                                    <GradientStop Color="#FFF5B4B4" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientIndigo" ToolTip="Indigo Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                            Tag="IndigoGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFE6EBFA" Offset="0"/>
+                                    <GradientStop Color="#FFB9C3E1" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientGreen" ToolTip="Green Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                                Tag="GreenGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFEFFAEA" Offset="0"/>
+                                    <GradientStop Color="#FFB9E1B9" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientCharcoal" ToolTip="Charcoal Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                            Tag="CharcoalGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFF0F0F0" Offset="0"/>
+                                    <GradientStop Color="#FFA0A0A0" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientLightBlue" ToolTip="Light Blue Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                            Tag="LightBlueGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFebf5ff" Offset="0"/>
+                                    <GradientStop Color="#ffb9d7f0" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientPeach" ToolTip="Peach Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                                Tag="PeachGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#fff5f0" Offset="0"/>
+                                    <GradientStop Color="#ffd2be" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientSkyBlue" ToolTip="Sky Blue Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                                Tag="SkyBlueGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFE6F5FF" Offset="0"/>
+                                    <GradientStop Color="#FFB9D7F0" Offset="1"/>
+                                </LinearGradientBrush>  
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientLavender" ToolTip="Lavender Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                            Tag="LavenderGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFF5F0FF" Offset="0"/>
+                                    <GradientStop Color="#FFD2BEE6" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="GradientEmerald" ToolTip="Emerald Gradient" BorderBrush="White" Click="BackgroundButton_Click" 
+                            Tag="EmeraldGradient" Margin="5,5" Padding="10 15" Width="80" Foreground="White" Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FFEFFAF0" Offset="0"/>
+                                    <GradientStop Color="#FFB9E1C8" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+
+                        <Button Name="Transparent" ToolTip="Transparent" BorderBrush="White" Click="BackgroundButton_Click" Width="170"
+                                    Tag="Transparent" Margin="5,5" Padding="10 15" Foreground="Black" Cursor="Hand">
+                            <Button.Background>
+                                <DrawingBrush TileMode="Tile" Viewport="0,0,10,10" ViewportUnits="Absolute">
+                                    <DrawingBrush.Drawing>
+                                        <DrawingGroup>
+                                            <GeometryDrawing Brush="White">
+                                                <GeometryDrawing.Geometry>
+                                                    <RectangleGeometry Rect="0,0,10,10"/>
+                                                </GeometryDrawing.Geometry>
+                                            </GeometryDrawing>
+                                            <GeometryDrawing Brush="#FFE0E0E0">
+                                                <GeometryDrawing.Geometry>
+                                                    <GeometryGroup>
+                                                        <RectangleGeometry Rect="0,0,5,5"/>
+                                                        <RectangleGeometry Rect="5,5,5,5"/>
+                                                    </GeometryGroup>
+                                                </GeometryDrawing.Geometry>
+                                            </GeometryDrawing>
+                                        </DrawingGroup>
+                                    </DrawingBrush.Drawing>
+                                </DrawingBrush>
+                            </Button.Background>
+                        </Button>
+
+                    </WrapPanel>
+                    
                     <!-- Sliders for padding and inset -->
                     <TextBlock Text="Padding:" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,010,10,10"/>
                     <Slider x:Name="PaddingSlider" 
@@ -126,17 +310,6 @@
                     Width="150"
                     ValueChanged="PaddingSlider_ValueChanged"/>
                     <TextBlock Text="{Binding ElementName=PaddingSlider, Path=Value, StringFormat='{}{0:F0}px'}" 
-                   VerticalAlignment="Center" HorizontalAlignment="Center"
-                   Margin="10,0,0,10"/>
-
-                    <TextBlock Text="V Padding:" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,010,10,10"/>
-                    <Slider x:Name="VPaddingSlider" 
-                    Minimum="0" 
-                    Maximum="100" 
-                    Value="10" 
-                    Width="150"
-                    ValueChanged="VPaddingSlider_ValueChanged"/>
-                    <TextBlock Text="{Binding ElementName=VPaddingSlider, Path=Value, StringFormat='{}{0:F0}px'}" 
                    VerticalAlignment="Center" HorizontalAlignment="Center"
                    Margin="10,0,0,10"/>
 
@@ -165,7 +338,7 @@
                     <TextBlock Text="Shadow Blur:" FontWeight="Bold" FontSize="15" Width="94" Margin="10,0,0,10"/>
                     <Slider x:Name="ShadowBlurSlider" Minimum="0" Maximum="20" Value="5" Width="120"
                     ValueChanged="ShadowBlurSlider_ValueChanged"/>
-                    <TextBlock Text="{Binding ElementName=ShadowBlurSlider, Path=Value, StringFormat='{}{0:F0}px'}" Width="40"
+                    <TextBlock Text="{Binding ElementName=ShadowBlurSlider, Path=Value, StringFormat='{}{0:F0}px'}" Width="80"
                     Margin="10,0,0,10"/>
 
                     <TextBlock Text="Shadow Opacity:" FontWeight="Bold" FontSize="15" Width="117" Margin="10,0,0,10"/>
@@ -202,8 +375,8 @@
                             <Border Name="BackgroundBorder" CornerRadius="8">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#E3F2FD" Offset="0"/>
-                                        <GradientStop Color="#FFF99E17" Offset="0.9"/>
+                                        <GradientStop Color="#FFFFF0DC" Offset="0"/>
+                                        <GradientStop Color="#FFFFCDA0" Offset="1"/>
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
@@ -211,24 +384,28 @@
                                    UseLayoutRounding="True" Margin="25" Opacity="1" Visibility="Visible" 
                                    VerticalAlignment="Center">-->
                             <Image Name="ScreenshotImage"
-                                           Stretch="Uniform"
-                                           SnapsToDevicePixels="True"
-                                           UseLayoutRounding="True"
-                                           Margin="25"
-                                           Opacity="1"
-                                           Visibility="Visible"
-                                           VerticalAlignment="Center"
-                                           RenderOptions.BitmapScalingMode="HighQuality">
-
-                            <Image.OpacityMask>
+                                    Stretch="Uniform"
+                                    SnapsToDevicePixels="True"
+                                    UseLayoutRounding="True"
+                                    Margin="25"
+                                    Opacity="1"
+                                    Visibility="Visible"
+                                    VerticalAlignment="Center"
+                                    RenderOptions.BitmapScalingMode="HighQuality">
+                                <Image.OpacityMask>
                                     <VisualBrush>
                                         <VisualBrush.Visual>
-                                            <Border Background="Black" CornerRadius="8" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Image}}"  Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Image}}"/>
+                                            <Border Background="Black" CornerRadius="8" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Image}}"
+                                                    Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Image}}"/>
                                         </VisualBrush.Visual>
                                     </VisualBrush>
                                 </Image.OpacityMask>
                             </Image>
-                            <Border Name="PlaceHolderBorder" Margin="60,200,60,200" Background="#FAF3F0CC" CornerRadius="15" Padding="30">
+                            <Grid>
+                                <!-- Your screenshot preview -->
+                                <Image x:Name="ScreenshotPreview" Stretch="Uniform" />
+
+                                <Border Name="PlaceHolderBorder" Margin="60,200,60,200" Background="#FAF3F0CC" CornerRadius="15" Padding="30">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <TextBlock Text="🖼️" FontSize="48" HorizontalAlignment="Center" Opacity="0.3"/>
                                     <TextBlock Name="PlaceholderText" HorizontalAlignment="Center" Text="Your screenshot will appear here" FontSize="18" Foreground="#636e72" Margin="0,010"/>
@@ -236,13 +413,32 @@
                                                FontSize="14" Foreground="#636e72" Opacity="0.7" TextAlignment="Center"/>
                                 </StackPanel>
                             </Border>
-                            <Border Name="PlaceholderWatermark" CornerRadius="15" Margin="20 20 25 25">
+
+                                <!-- Watermark -->
+                                <TextBlock x:Name="WatermarkText"
+                                   Text="Screenshot by Snipper"
+                                   Foreground="White"
+                                   Opacity="0.9"
+                                   FontSize="12"
+                                   FontFamily="Segoe UI"
+                                   FontWeight="Normal"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Bottom"
+                                   Margin="8"
+                                   IsHitTestVisible="False">
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect BlurRadius="5" ShadowDepth="0" Color="Black" Opacity="0.9"/>
+                                    </TextBlock.Effect>
+                                </TextBlock>
+
+                            </Grid>
+                            <!--<Border Name="PlaceholderWatermark" CornerRadius="15" Margin="20 20 25 25">
                                 <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                                    <TextBlock Name="txtWatermark" FontSize="18" Opacity="1" FontWeight="Thin" Foreground="White">
+                                    <TextBlock Name="txtWatermark" FontSize="14" Opacity="1" FontWeight="Bold"  Foreground="AntiqueWhite">
                                         <Run Text="Screenshot by WinSnipper"/>
                                     </TextBlock>
                                 </StackPanel>
-                            </Border>
+                            </Border>-->
                         </Grid>
                     </Viewbox>
                 </Grid>
