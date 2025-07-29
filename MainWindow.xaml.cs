@@ -22,11 +22,17 @@ namespace Snipper
     public partial class MainWindow : Window
     {
         private BitmapSource? _currentScreenshot;
+        public string PropWatermarkText { get; set; } = "Screenshot by Snipper";
 
         public MainWindow()
         {
             InitializeComponent();
             InitializeImageEffect();
+
+            DataContext = this;
+
+            WatermarkToggle.IsChecked = true;
+            WatermarkText.Visibility = Visibility.Visible;
         }
 
         private void InitializeImageEffect()
@@ -376,11 +382,10 @@ namespace Snipper
         }
         private void InsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (BackgroundBorder != null)
+            if (ScreenshotContainer != null)
             {
                 double inset = InsetSlider.Value;
-                //ScreenshotContainer.Margin = new Thickness(inset);
-                ScreenshotImage.Margin = new Thickness(inset);
+                ScreenshotContainer.Margin = new Thickness(inset);
                 UpdateWatermarkSize();
             }
         }
@@ -412,6 +417,28 @@ namespace Snipper
             {
                 shadowEffect.Opacity = ShadowOpacitySlider.Value;
             }
+        }
+
+        private void WatermarkToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            if (WatermarkText != null) {
+                WatermarkText.Visibility = Visibility.Visible;
+                WatermarkInput.IsEnabled = true;
+            }
+        }
+
+        private void WatermarkToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (WatermarkText != null)
+            {
+                WatermarkText.Visibility = Visibility.Collapsed;
+                WatermarkInput.IsEnabled = false;
+            }
+        }
+
+        private void WatermarkInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            WatermarkText.Text = WatermarkInput.Text;
         }
 
         private void PaddingPresetComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
