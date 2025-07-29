@@ -1,27 +1,30 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media ;
-using WinPoint = System.Windows;
-using WinColors = System.Windows.Media;
-using System.Windows.Media.Imaging;
-using Microsoft.Win32;
-using System.Threading.Tasks;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
-using Size = System.Windows.Size;
+using System.Windows.Media.Imaging;
 using Brushes = System.Windows.Media.Brushes;
+using Point = System.Windows.Point;
+using Size = System.Windows.Size;
+using WinColors = System.Windows.Media;
+using WinPoint = System.Windows;
 
 namespace Snipper
 {
     public partial class MainWindow : Window
     {
         private BitmapSource? _currentScreenshot;
+        private Point _dragStartPos;
         public string PropWatermarkText { get; set; } = "Screenshot by Snipper";
 
         public MainWindow()
@@ -329,25 +332,75 @@ namespace Snipper
             using (var fileSystem = File.Create(dialog.FileName))
                 encoder.Save(fileSystem);
 
-            ShowTempStatus($"Screenshot saved to {dialog.FileName}");
+            ShowTempStatus($"Screenshot saved successfully to {dialog.FileName}", "📷");
         }
 
-        
-        private async void ShowTempStatus(string msg)
+        private async void ShowTempStatus(string msg, string icon = "✔")
         {
-            string old = Title;
-            Title = msg;
-            PlaceholderText.Text = msg;
-            await Task.Delay(3000);
-            Title = old;
+            TempSnackbarIcon.Text = icon;
+            TempSnackbarText.Text = msg;
+
+            // Slide up + fade in
+            var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200));
+            var slideUp = new DoubleAnimation(20, 0, TimeSpan.FromMilliseconds(200));
+            TempSnackbar.BeginAnimation(OpacityProperty, fadeIn);
+            ((TranslateTransform)TempSnackbar.RenderTransform).BeginAnimation(TranslateTransform.YProperty, slideUp);
+
+            await Task.Delay(3000); // Show for 3 sec
+
+            // Slide down + fade out
+            var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(200));
+            var slideDown = new DoubleAnimation(0, 20, TimeSpan.FromMilliseconds(200));
+            TempSnackbar.BeginAnimation(OpacityProperty, fadeOut);
+            ((TranslateTransform)TempSnackbar.RenderTransform).BeginAnimation(TranslateTransform.YProperty, slideDown);
         }
+
+        private void ScreenshotImage_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _dragStartPos = e.GetPosition(null);
+        }
+        private string SaveTempFile(MemoryStream imageStream)
+        {
+            string tempPath = Path.Combine(Path.GetTempPath(), $"Snipper_{Guid.NewGuid()}.png");
+            using (var fileStream = new FileStream(tempPath, FileMode.Create, FileAccess.Write))
+            {
+                imageStream.CopyTo(fileStream);
+            }
+            return tempPath;
+        }
+
+        private void ScreenshotImage_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed && _currentScreenshot != null)
+            {
+                var currentPos = e.GetPosition(null);
+
+                if (Math.Abs(currentPos.X - -_dragStartPos.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                    Math.Abs(currentPos.Y - _dragStartPos.Y) > SystemParameters.MinimumVerticalDragDistance)
+                {
+                    var pngStream = new MemoryStream();
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(_currentScreenshot));
+                    encoder.Save(pngStream);
+                    pngStream.Position = 0;
+
+                    var dataObj = new DataObject();
+                    dataObj.SetData(DataFormats.Bitmap, _currentScreenshot);
+                    dataObj.SetData(DataFormats.FileDrop, new string[] { SaveTempFile(pngStream) });
+
+                    DragDrop.DoDragDrop(ScreenshotImage, dataObj, DragDropEffects.Copy);
+                }
+            }
+        }
+
 
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             if (_currentScreenshot == null) return;
 
             Clipboard.SetImage(GetScreenshot());
-            ShowTempStatus("Screenshot copied to clipboard!");
+            //ShowTempStatus("Screenshot copied to clipboard!");
+            ShowTempStatus("Image copied to clipboard", "📋");
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)

@@ -406,7 +406,9 @@
                                     Opacity="1"
                                     Visibility="Visible"
                                     VerticalAlignment="Center"
-                                    RenderOptions.BitmapScalingMode="HighQuality">
+                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                    MouseMove="ScreenshotImage_MouseMove"
+                                    MouseDown="ScreenshotImage_PreviewMouseLeftButtonDown">
                                 <Image.OpacityMask>
                                     <VisualBrush>
                                         <VisualBrush.Visual>
@@ -445,17 +447,34 @@
                                         <DropShadowEffect BlurRadius="5" ShadowDepth="0" Color="Black" Opacity="0.9"/>
                                     </TextBlock.Effect>
                                 </TextBlock>
-
                             </Grid>
-                            <!--<Border Name="PlaceholderWatermark" CornerRadius="15" Margin="20 20 25 25">
-                                <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                                    <TextBlock Name="txtWatermark" FontSize="14" Opacity="1" FontWeight="Bold"  Foreground="AntiqueWhite">
-                                        <Run Text="Screenshot by WinSnipper"/>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Border>-->
                         </Grid>
                     </Viewbox>
+                    
+                    <!--The Snackbar-->
+                    <Border x:Name="TempSnackbar"
+                            Background="#323232"
+                            CornerRadius="6"
+                            Padding="10"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Bottom"
+                            Opacity="0"
+                            Margin="0,0,0,30"
+                            RenderTransformOrigin="0.5,1">
+                        <Border.RenderTransform>
+                            <TranslateTransform Y="20"/>
+                        </Border.RenderTransform>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="TempSnackbarIcon"
+                                Text="✔"
+                                Foreground="White"
+                                FontSize="16"
+                                Margin="0,0,5,0"/>
+                            <TextBlock x:Name="TempSnackbarText"
+                                Foreground="White"
+                                FontSize="14"/>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Border>
         </Grid>
