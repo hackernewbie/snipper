@@ -26,6 +26,7 @@ namespace Snipper
         private BitmapSource? _currentScreenshot;
         private Point _dragStartPos;
         public string PropWatermarkText { get; set; } = "Screenshot by Snipper";
+        private const double MaxTotalSpacing = 100;
 
         public MainWindow()
         {
@@ -409,17 +410,6 @@ namespace Snipper
 
             SaveBitmapWithDialog(GetScreenshot());
         }
-
-        private void radius_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Close_Click(object sender, RoutedEventArgs e) => Close();
         private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
         private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
@@ -433,6 +423,8 @@ namespace Snipper
                 UpdateWatermarkSize();
             }
         }
+
+
         private void InsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (ScreenshotContainer != null)
@@ -442,6 +434,7 @@ namespace Snipper
                 UpdateWatermarkSize();
             }
         }
+
 
         private void DepthSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -472,6 +465,15 @@ namespace Snipper
             }
         }
 
+        private void RoundedCornersSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (ScreenshotImage?.Effect is DropShadowEffect shadowEffect)
+            {
+                double radius = e.NewValue;
+                ScreenshotImageBorder.CornerRadius = new CornerRadius(radius);
+            }
+        }
+
         private void WatermarkToggle_Checked(object sender, RoutedEventArgs e)
         {
             if (WatermarkText != null) {
@@ -494,26 +496,26 @@ namespace Snipper
             WatermarkText.Text = WatermarkInput.Text;
         }
 
-        private void PaddingPresetComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (PaddingPresetComboBox.SelectedItem is ComboBoxItem selectedItem)
-            {
-                if (int.TryParse(selectedItem.Tag.ToString(), out int padding))
-                {
-                    if (padding >= 0) // Not "Custom"
-                    {
-                        ScreenshotImage.Margin = new Thickness(padding);
+        //private void PaddingPresetComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    if (PaddingPresetComboBox.SelectedItem is ComboBoxItem selectedItem)
+        //    {
+        //        if (int.TryParse(selectedItem.Tag.ToString(), out int padding))
+        //        {
+        //            if (padding >= 0) // Not "Custom"
+        //            {
+        //                ScreenshotImage.Margin = new Thickness(padding);
 
-                        // Update slider if you have one
-                        if (PaddingSlider != null)
-                        {
-                            PaddingSlider.Value = padding;
-                        }
-                    }
-                    // If "Custom" is selected, do nothing - let user use slider
-                }
-            }
-        }
+        //                // Update slider if you have one
+        //                if (PaddingSlider != null)
+        //                {
+        //                    PaddingSlider.Value = padding;
+        //                }
+        //            }
+        //            // If "Custom" is selected, do nothing - let user use slider
+        //        }
+        //    }
+        //}
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {

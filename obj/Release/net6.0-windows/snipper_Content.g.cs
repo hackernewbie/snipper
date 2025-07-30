@@ -10,5 +10,6 @@
 
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/click.wav")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/crosshair.cur")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/app_icon.ico")]
 
 
