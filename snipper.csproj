@@ -4,14 +4,24 @@
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
 		<ApplicationIcon>resources\app_icon.ico</ApplicationIcon>
 	</PropertyGroup>
+
 	<ItemGroup>
 	  <None Remove="resources\click.wav" />
 	  <None Remove="resources\crosshair.cur" />
 	  <None Remove="resources\icon.png" />
 	  <None Remove="resources\logo_color_transparent.png" />
 	  <None Remove="resources\logo_transparent.png" />
+	</ItemGroup>
+	<ItemGroup>
+	  <COMReference Include="{215d64d2-031c-33c7-96e3-61794cd1ee61}">
+	    <WrapperTool>tlbimp</WrapperTool>
+	    <VersionMinor>4</VersionMinor>
+	    <VersionMajor>2</VersionMajor>
+	    <Guid>215d64d2-031c-33c7-96e3-61794cd1ee61</Guid>
+	  </COMReference>
 	</ItemGroup>
 	<ItemGroup>
 	  <Content Include="resources\click.wav">
@@ -24,10 +34,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.7" />
 		<!--<PackageReference Include="Microsoft.WindowsDesktop.App" Version="6.0.0" />-->
 	</ItemGroup>
-
+	<ItemGroup>
+		<Reference Include="System.Windows.Forms" />
+	</ItemGroup>
 	<ItemGroup>
 	  <Resource Include="resources\icon.png" />
 	  <Resource Include="resources\logo_color_transparent.png">

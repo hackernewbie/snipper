@@ -1,17 +1,18 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Globalization;
 using System.Media;
 using System.Windows;
-using System.Windows.Controls;
+using System.Drawing;
+using System.Windows.Media;
+using DrawingImaging = System.Drawing.Imaging;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
+using System.Windows.Controls;
+using System.Drawing.Drawing2D;
 using System.Windows.Media.Imaging;
+using System.Runtime.InteropServices;
 using Brushes = System.Drawing.Brushes;
-using WinShapes = System.Windows.Shapes;  // For Path
+using WinShapes = System.Windows.Shapes;
+using System.Diagnostics;  // For Path
 
 
 namespace Snipper
@@ -185,83 +186,100 @@ namespace Snipper
                 _isSelecting = false;
                 OverlayCanvas.ReleaseMouseCapture();
 
-                // Calculate selection area
                 double left = Math.Min(_startPoint.X, _endPoint.X);
                 double top = Math.Min(_startPoint.Y, _endPoint.Y);
                 double width = Math.Abs(_endPoint.X - _startPoint.X);
                 double height = Math.Abs(_endPoint.Y - _startPoint.Y);
 
-                if (width > 10 && height > 10) // Minimum size check
+                if (width > 10 && height > 10)
                 {
                     // Convert to screen coordinates
                     System.Windows.Point screenPoint = this.PointToScreen(new System.Windows.Point(left, top));
 
-                    // Capture screenshot
-                    BitmapSource screenshot = CaptureScreen(
-                        (int)screenPoint.X, (int)screenPoint.Y,
-                        (int)width, (int)height);
+                    // Detect current DPI
+                    var dpi = VisualTreeHelper.GetDpi(this);
 
-                    // Save watermarkedImage...
-                    //var watermarkedImage = AddWatermark(screenshot, "Snipper");       //This adds watermark ON the image
-                    //ScreenshotCaptured?.Invoke(this, watermarkedImage);
+                    // Scale width/height for physical pixels
+                    int captureLeft = (int)(screenPoint.X);
+                    int captureTop = (int)(screenPoint.Y);
+                    int captureWidth = (int)(width * dpi.DpiScaleX);
+                    int captureHeight = (int)(height * dpi.DpiScaleY);
+
+                    BitmapSource screenshot = ScreenCaptureHelper.CaptureScreen(
+                        captureLeft, captureTop, captureWidth, captureHeight
+                    );
 
                     ScreenshotCaptured?.Invoke(this, screenshot);
+                    PlayScreenshotSound();
                 }
-                PlayScreenshotSound();
-                
+
                 this.Close();
             }
-            // Hide coordinate display when selection is complete
             CoordinateText.Visibility = Visibility.Collapsed;
         }
 
-        private BitmapSource CaptureScreen(int x, int y, int width, int height)
+
+        public static class ScreenCaptureHelper
         {
-            // Get DPI scaling of current monitor
-            var dpi = VisualTreeHelper.GetDpi(this);
-            double scaleX = dpi.DpiScaleX;
-            double scaleY = dpi.DpiScaleY;
+            [DllImport("user32.dll")]
+            private static extern IntPtr GetDesktopWindow();
 
-            // Convert DIPs → Physical pixels
-            int scaledX = (int)(x * scaleX);
-            int scaledY = (int)(y * scaleY);
-            int scaledWidth = (int)(width * scaleX);
-            int scaledHeight = (int)(height * scaleY);
+            [DllImport("user32.dll")]
+            private static extern IntPtr GetWindowDC(IntPtr hWnd);
 
-            using (Bitmap bitmap = new Bitmap(scaledWidth, scaledHeight, System.Drawing.Imaging.PixelFormat.Format32bppPArgb))
+            [DllImport("user32.dll")]
+            private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+            [DllImport("gdi32.dll")]
+            private static extern IntPtr CreateCompatibleDC(IntPtr hdc);
+
+            [DllImport("gdi32.dll")]
+            private static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int nWidth, int nHeight);
+
+            [DllImport("gdi32.dll")]
+            private static extern IntPtr SelectObject(IntPtr hdc, IntPtr hObject);
+
+            [DllImport("gdi32.dll")]
+            private static extern bool BitBlt(IntPtr hdcDest, int nXDest, int nYDest, int nWidth, int nHeight,
+                                              IntPtr hdcSrc, int nXSrc, int nYSrc, int dwRop);
+
+            [DllImport("gdi32.dll")]
+            private static extern bool DeleteDC(IntPtr hdc);
+
+            [DllImport("gdi32.dll")]
+            private static extern bool DeleteObject(IntPtr hObject);
+
+            private const int SRCCOPY = 0x00CC0020;
+
+            public static BitmapSource CaptureScreen(int x, int y, int width, int height)
             {
-                using (Graphics graphics = Graphics.FromImage(bitmap))
+                IntPtr desktopWnd = GetDesktopWindow();
+                IntPtr desktopDC = GetWindowDC(desktopWnd);
+                IntPtr memoryDC = CreateCompatibleDC(desktopDC);
+
+                IntPtr hBitmap = CreateCompatibleBitmap(desktopDC, width, height);
+                IntPtr oldBitmap = SelectObject(memoryDC, hBitmap);
+
+                BitBlt(memoryDC, 0, 0, width, height, desktopDC, x, y, SRCCOPY);
+
+                try
                 {
-                    graphics.CompositingQuality = CompositingQuality.HighQuality;
-                    graphics.InterpolationMode = InterpolationMode.NearestNeighbor; // Prevent blur
-                    graphics.PixelOffsetMode = PixelOffsetMode.None;
+                    var bmpSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                        hBitmap, IntPtr.Zero, Int32Rect.Empty,
+                        BitmapSizeOptions.FromWidthAndHeight(width, height));
 
-                    graphics.CopyFromScreen(scaledX, scaledY, 0, 0, new System.Drawing.Size(scaledWidth, scaledHeight), CopyPixelOperation.SourceCopy);
+                    return bmpSource;
                 }
-
-                // Convert to WPF BitmapSource with DPI
-                //return ConvertBitmapToBitmapSource(bitmap, dpi.PixelsPerInchX, dpi.PixelsPerInchY);
-                return ConvertBitmapToBitmapSource(bitmap);
+                finally
+                {
+                    SelectObject(memoryDC, oldBitmap);
+                    DeleteObject(hBitmap);
+                    DeleteDC(memoryDC);
+                    ReleaseDC(desktopWnd, desktopDC);
+                }
             }
         }
-
-        private BitmapSource ConvertBitmapToBitmapSource(Bitmap bitmap)
-        {
-            IntPtr hBitmap = bitmap.GetHbitmap();
-            try
-            {
-                return Imaging.CreateBitmapSourceFromHBitmap(
-                    hBitmap,
-                    IntPtr.Zero,
-                    Int32Rect.Empty,
-                    BitmapSizeOptions.FromEmptyOptions());
-            }
-            finally
-            {
-                DeleteObject(hBitmap); // free unmanaged memory
-            }
-        }
-
+        
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
         public static extern bool DeleteObject(IntPtr hObject);
 

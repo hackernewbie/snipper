@@ -5,10 +5,7 @@ D:\Projects\snipper\snipper\bin\Release\net6.0-windows\snipper.deps.json
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\snipper.runtimeconfig.json
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\snipper.dll
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\snipper.pdb
-D:\Projects\snipper\snipper\bin\Release\net6.0-windows\Microsoft.Win32.SystemEvents.dll
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\System.Drawing.Common.dll
-D:\Projects\snipper\snipper\bin\Release\net6.0-windows\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
-D:\Projects\snipper\snipper\bin\Release\net6.0-windows\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 D:\Projects\snipper\snipper\obj\Release\net6.0-windows\snipper.csproj.AssemblyReference.cache
 D:\Projects\snipper\snipper\obj\Release\net6.0-windows\MainWindow.baml
 D:\Projects\snipper\snipper\obj\Release\net6.0-windows\OverlayWindow.baml
@@ -30,3 +27,4 @@ D:\Projects\snipper\snipper\obj\Release\net6.0-windows\refint\snipper.dll
 D:\Projects\snipper\snipper\obj\Release\net6.0-windows\snipper.pdb
 D:\Projects\snipper\snipper\obj\Release\net6.0-windows\snipper.genruntimeconfig.cache
 D:\Projects\snipper\snipper\obj\Release\net6.0-windows\ref\snipper.dll
+D:\Projects\snipper\snipper\obj\Release\net6.0-windows\snipper.csproj.ResolveComReference.cache

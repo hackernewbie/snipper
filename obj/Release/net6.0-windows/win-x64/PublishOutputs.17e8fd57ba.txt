@@ -172,6 +172,7 @@ D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\DirectWri
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\Microsoft.VisualBasic.Forms.dll
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\Microsoft.VisualBasic.dll
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\Microsoft.Win32.Registry.AccessControl.dll
+D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\Microsoft.Win32.SystemEvents.dll
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\PresentationCore.dll
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\PresentationFramework-SystemCore.dll
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\PresentationFramework-SystemData.dll
@@ -502,5 +503,4 @@ D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\zh-Hant\U
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\zh-Hant\UIAutomationTypes.resources.dll
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\zh-Hant\WindowsBase.resources.dll
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\zh-Hant\WindowsFormsIntegration.resources.dll
-D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\Microsoft.Win32.SystemEvents.dll
 D:\Projects\snipper\snipper\bin\Release\net6.0-windows\publish\win-x64\System.Drawing.Common.dll

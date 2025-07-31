@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using WF = System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -71,17 +72,16 @@ namespace Snipper
 
         private void OnScreenshotCaptured(object sender, BitmapSource screenshot)
         {
-            _currentScreenshot = screenshot;        // full-quality
-            ScreenshotImage.Source = screenshot;    // no extra scaling
+            _currentScreenshot = screenshot;         // Full-res raw
+            ScreenshotImage.Source = screenshot;     // Show raw image in your Viewbox
 
             PlaceholderText.Visibility = Visibility.Collapsed;
             PlaceHolderBorder.Visibility = Visibility.Collapsed;
             CopyButton.IsEnabled = true;
             SaveButton.IsEnabled = true;
-
             UpdateWatermarkSize();
-           
         }
+
         private void UpdateWatermarkSize()
         {
             if (ScreenshotPreview.ActualWidth > 0)
@@ -271,69 +271,40 @@ namespace Snipper
             }
         }
 
-
-        private RenderTargetBitmap CaptureAtHighRes(FrameworkElement target)
+        private BitmapSource GetFinalImage()
         {
-            var originalTransform = target.LayoutTransform;
-
-            try
-            {
-                var dpi = VisualTreeHelper.GetDpi(target);
-
-                // Capture at actual physical pixel size
-                double actualWidth = target.ActualWidth * dpi.DpiScaleX;
-                double actualHeight = target.ActualHeight * dpi.DpiScaleY;
-
-                target.LayoutTransform = Transform.Identity;
-                target.Measure(new Size(target.ActualWidth, target.ActualHeight));
-                target.Arrange(new Rect(0, 0, target.ActualWidth, target.ActualHeight));
-                target.UpdateLayout();
-
-                var rtb = new RenderTargetBitmap(
-                    (int)actualWidth,
-                    (int)actualHeight,
-                    dpi.PixelsPerInchX,
-                    dpi.PixelsPerInchY,
-                    PixelFormats.Pbgra32);
-
-                rtb.Render(target);
-                return rtb;
-            }
-            finally
-            {
-                target.LayoutTransform = originalTransform;
-                target.UpdateLayout();
-            }
+            return GetScreenshot(); // already high-res and decorated
         }
 
         private RenderTargetBitmap GetScreenshot()
         {
-            return CaptureAtHighRes(ScreenshotContainer);
-        }
+            double scale = 2.0; // 2x resolution
 
+            int width = (int)(ScreenshotContainer.ActualWidth * scale);
+            int height = (int)(ScreenshotContainer.ActualHeight * scale);
 
-        /// <summary>Saves the given bitmap using a SaveFileDialog.</summary>
-        private void SaveBitmapWithDialog(RenderTargetBitmap bmp)
-        {
-            var dialog = new Microsoft.Win32.SaveFileDialog
+            var rtb = new RenderTargetBitmap(
+                width,
+                height,
+                96 * scale,   // higher DPI
+                96 * scale,
+                PixelFormats.Pbgra32);
+
+            var dv = new DrawingVisual();
+            using (var ctx = dv.RenderOpen())
             {
-                Filter = "PNG files (*.png)|*.png|JPEG files (*.jpg)|*.jpg",
-                DefaultExt = "png",
-                FileName = $"Snipper_Screenshot_{DateTime.Now:yyyyMMdd_HHmmss}"
-            };
+                ctx.DrawRectangle(
+                    new VisualBrush(ScreenshotContainer),
+                    null,
+                    new Rect(
+                        new Point(),
+                        new Size(ScreenshotContainer.ActualWidth, ScreenshotContainer.ActualHeight)
+                    ));
+            }
 
-            if (dialog.ShowDialog() != true)
-                return;
-
-            BitmapEncoder encoder = dialog.FilterIndex == 1
-                ? new PngBitmapEncoder()
-                : new JpegBitmapEncoder { QualityLevel = 100 };
-
-            encoder.Frames.Add(BitmapFrame.Create(bmp));
-            using (var fileSystem = File.Create(dialog.FileName))
-                encoder.Save(fileSystem);
-
-            ShowTempStatus($"Screenshot saved successfully to {dialog.FileName}", "📷");
+            rtb.Render(dv);
+            rtb.Freeze();
+            return rtb;
         }
 
         private async void ShowTempStatus(string msg, string icon = "✔")
@@ -376,18 +347,22 @@ namespace Snipper
             {
                 var currentPos = e.GetPosition(null);
 
-                if (Math.Abs(currentPos.X - -_dragStartPos.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                if (Math.Abs(currentPos.X - _dragStartPos.X) > SystemParameters.MinimumHorizontalDragDistance ||
                     Math.Abs(currentPos.Y - _dragStartPos.Y) > SystemParameters.MinimumVerticalDragDistance)
                 {
+                    var finalImage = GetFinalImage();
+
                     var pngStream = new MemoryStream();
                     var encoder = new PngBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(_currentScreenshot));
+                    encoder.Frames.Add(BitmapFrame.Create(finalImage));
                     encoder.Save(pngStream);
                     pngStream.Position = 0;
 
+                    var tempFile = SaveTempFile(pngStream);
+
                     var dataObj = new DataObject();
-                    dataObj.SetData(DataFormats.Bitmap, _currentScreenshot);
-                    dataObj.SetData(DataFormats.FileDrop, new string[] { SaveTempFile(pngStream) });
+                    dataObj.SetData(DataFormats.Bitmap, finalImage);
+                    dataObj.SetData(DataFormats.FileDrop, new string[] { tempFile });
 
                     DragDrop.DoDragDrop(ScreenshotImage, dataObj, DragDropEffects.Copy);
                 }
@@ -397,21 +372,85 @@ namespace Snipper
 
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentScreenshot == null) return;
+            // ✅ Use scaled image only for copying
+            double scale = 2.0;
+            var container = ScreenshotContainer;
 
-            Clipboard.SetImage(GetScreenshot());
-            //ShowTempStatus("Screenshot copied to clipboard!");
-            ShowTempStatus("Image copied to clipboard", "📋");
+            int width = (int)(container.ActualWidth * scale);
+            int height = (int)(container.ActualHeight * scale);
+
+            var rtb = new RenderTargetBitmap(
+                width, height,
+                96 * scale, 96 * scale,
+                PixelFormats.Pbgra32);
+
+            var dv = new DrawingVisual();
+            using (var ctx = dv.RenderOpen())
+            {
+                ctx.DrawRectangle(
+                    new VisualBrush(container),
+                    null,
+                    new Rect(new Point(), new Size(container.ActualWidth, container.ActualHeight)));
+            }
+            rtb.Render(dv);
+
+            // ✅ Encode to BMP and convert to DIB
+            byte[] bmpBytes;
+            using (var ms = new MemoryStream())
+            {
+                var encoder = new BmpBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(rtb));
+                encoder.Save(ms);
+                bmpBytes = ms.ToArray();
+            }
+
+            byte[] dibBytes = ConvertBmpToDib(bmpBytes);
+
+            var dataObj = new DataObject();
+            using (var dibStream = new MemoryStream(dibBytes))
+            {
+                dataObj.SetData(DataFormats.Dib, dibStream);
+                Clipboard.SetDataObject(dataObj, true);
+            }
+
+            ShowTempStatus("📋 High-res screenshot copied!");
         }
+
+
+
+        // Converts BMP byte[] to DIB
+        private static byte[] ConvertBmpToDib(byte[] bmpBytes)
+        {
+            const int bmpHeaderSize = 14; // BMP header is 14 bytes
+            byte[] dibBytes = new byte[bmpBytes.Length - bmpHeaderSize];
+            Buffer.BlockCopy(bmpBytes, bmpHeaderSize, dibBytes, 0, dibBytes.Length);
+            return dibBytes;
+        }
+
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentScreenshot == null) return;
+            var finalImage = GetFinalImage();
 
-            SaveBitmapWithDialog(GetScreenshot());
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(finalImage));
+
+            var saveDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "PNG Image (*.png)|*.png",
+                FileName = $"Snipper_Screenshot_{DateTime.Now:yyyyMMdd_HHmmss}.png"
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                using (var fs = new FileStream(saveDialog.FileName, FileMode.Create))
+                {
+                    encoder.Save(fs);
+                }
+                ShowTempStatus("💾 Screenshot saved successfully!");
+            }
         }
-        private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
-        private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
 
         private void PaddingSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {

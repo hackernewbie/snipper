@@ -525,3 +525,4 @@ D:\Projects\snipper\snipper\obj\Release\net6.0-windows\win-x64\refint\snipper.dl
 D:\Projects\snipper\snipper\obj\Release\net6.0-windows\win-x64\snipper.pdb
 D:\Projects\snipper\snipper\obj\Release\net6.0-windows\win-x64\snipper.genruntimeconfig.cache
 D:\Projects\snipper\snipper\obj\Release\net6.0-windows\win-x64\ref\snipper.dll
+D:\Projects\snipper\snipper\obj\Release\net6.0-windows\win-x64\snipper.csproj.ResolveComReference.cache

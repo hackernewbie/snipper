@@ -120,8 +120,6 @@
 
 
     </Window.Resources>
-
-
     <Grid Margin="0,0,0,-6">
         <Grid.ColumnDefinitions>
             <!--<ColumnDefinition Width="134*"/>
@@ -141,7 +139,14 @@
                 Width="64" Height="64" Margin="5" Grid.Row="0" Grid.Column="0"/>-->
         <Image Source="resources/logo_color_transparent.png" Height="70" Margin="25 0 0 0" 
                VerticalAlignment="Center" HorizontalAlignment="Left"/>
-        <!--<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="140,25,0,5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="496">-->
+        <!--<StackPanel Grid.Row="0" 
+                        Orientation="Horizontal"
+                        Margin="140,25,0,5" 
+                        Grid.Column="1" 
+                        Grid.ColumnSpan="2" 
+                        HorizontalAlignment="Left" 
+                        Width="496">-->
+        
         <StackPanel Grid.Row="0" 
                     Orientation="Horizontal" 
                     Margin="100,10,25,0" 
@@ -560,6 +565,7 @@
             </ScrollViewer>
 
             <!-- Screenshot Display Area -->
+            
             <Border Name="ScreenshotContainerBorder" Grid.Column="1" BorderBrush="#DDD" BorderThickness="1" 
                     CornerRadius="8" Margin="5 0 5 0">
                 <Grid>
